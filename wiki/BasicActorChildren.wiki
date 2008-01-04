@@ -1,7 +1,5 @@
 #labels Phase-Requirements
-#list of required children of the [BasicActorClass basic actor class]
+#list of required children of the [BasicActor basic actor class]
 
  * [caveman]
  * [dragon]
-
-
