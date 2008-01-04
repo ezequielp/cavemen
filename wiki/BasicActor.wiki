@@ -8,5 +8,5 @@ This class will implement the basic requirements to any entity moving in the gam
 
 == Features needed ==
 
- * Is a finite state machine using the [StateMachineClass state machine class]. 
+ * Owns a finite state machine using the [StateMachineClass state machine class]. 
  * Implements [SteeringBehaviour steering behaviour]
