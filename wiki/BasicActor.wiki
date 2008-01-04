@@ -9,4 +9,8 @@ This class will implement the basic requirements to any entity moving in the gam
 == Features needed ==
 
  * Owns a finite state machine using the [StateMachineClass state machine class]. 
- * Defines a steering interface that must be implemented by its [BasicActorChildren children].
+ * Implements a physics engine that allows moving the entity in the map by use of the following interface:
+   * `set_steering_force()`
+   * `turn_gravity_ON()`
+   * `turn_gravity_OFF()`
+ * Implements the update of the actor's coordinates using the standard Update method, as expected by the parent class Sprite
