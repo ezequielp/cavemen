@@ -3,7 +3,9 @@
 
 = State_machine_class =
 
-This method implements a state machine using the [StateDesignPattern state design pattern].
+This method implements a state machine using the [http://www.vincehuston.org/dp/state.html state design pattern].
+
+This class provides a general way of changing the actor's internal state, which is defined in time as a [StateClass state class].
 
 ==Methods==
 
