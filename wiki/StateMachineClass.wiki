@@ -1,0 +1,11 @@
+#labels Phase-Design
+#Description of the class used to define a state machine
+
+= State_machine_class =
+
+This method implements a state machine using the [StateDesignPattern state design pattern].
+
+==Methods==
+
+* `set_state(new_state)`
+* `update_state(current_time)`
