@@ -1,0 +1,12 @@
+#labels Phase-Design
+#This is the description of the basic actor class
+
+= Basic_Actor  =
+_Extends pygame.sprite.Sprite_
+
+This class will implement the basic requirements to any entity moving in the game's world. It inherits from pygame's Sprite class and from the StateMachineClass to implement its AI.
+
+Features needed:
+
+*Implements a finite state machine using the StateMachineClass. 
+*Implements SteeringBehaviour
