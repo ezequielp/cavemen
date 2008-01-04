@@ -10,7 +10,7 @@ This class will implement the basic requirements to any entity moving in the gam
 
  * Owns a finite state machine using the [StateMachineClass state machine class]. 
  * Implements a physics engine that allows moving the entity in the map by use of the following interface:
-   * `set_steering_force()`
+   * `set_steering_force()`: sets a force applied to the actor
    * `turn_gravity_ON()`
    * `turn_gravity_OFF()`
  * Implements the update of the actor's coordinates using the standard Update method, as expected by the parent class Sprite
