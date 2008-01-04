@@ -8,5 +8,5 @@ This method implements a state machine using the [StateDesignPattern state desig
 ==Methods==
 
 Needed methods are:
-*  {{{set_state(new_state)}}}
-*  {{{update_state(current_time)}}}
+*  set_state(new_state)
+*  update_state(current_time)
