@@ -9,4 +9,4 @@ This class will implement the basic requirements to any entity moving in the gam
 == Features needed ==
 
  * Owns a finite state machine using the [StateMachineClass state machine class]. 
- * Implements [SteeringBehaviour steering behaviour]
+ * Defines a steering interface that must be implemented by its [BasicActorChildren children].
