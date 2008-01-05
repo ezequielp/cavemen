@@ -1,4 +1,4 @@
-#summary Basic state for a wandering caveman
+#summary Basic state for a caveman roaming free in a definite floor
 #labels Phase-Design
 
 = `State_Wandering` =
