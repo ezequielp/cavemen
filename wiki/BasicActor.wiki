@@ -1,16 +1,24 @@
+#summary This is the description of the basic actor class
 #labels Phase-Design
-#This is the description of the basic actor class
 
 = `Basic_Actor` =
 _Extends `pygame.sprite.Sprite`_
 
-This class will implement the basic requirements to any entity moving in the game's world. It inherits from pygame's Sprite class and from the [StateMachineClass `state_machine` class] to implement AI.
+This class will implement the basic requirements to any entity moving in the game's world. It inherits from pygame's Sprite class and has a [StateMachineClass `state_machine` class] to implement AI.
 
 == Features needed ==
 
  * Owns a finite state machine using the [StateMachineClass state machine class]. 
  * Implements a physics engine that allows moving the entity in the map by use of the following interface:
    * `set_steering_force()`: sets a force applied to the actor
-   * `turn_gravity_ON()`
-   * `turn_gravity_OFF()`
+   * `turn_gravity_ON()`: Adds a gravitational force to the movement
+   * `turn_gravity_OFF()`: Removes the gravitational force. (for example, when standing on floor)
  * Implements the update of the actor's coordinates using the standard Update method, as expected by the parent class Sprite
+
+== Parents ==
+
+[http://www.pygame.org/docs/ref/sprite.html#pygame.sprite.Sprite `pygame.sprite.Sprite`]
+
+== Children ==
+
+[Caveman caveman]
