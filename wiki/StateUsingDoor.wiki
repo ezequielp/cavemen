@@ -1,0 +1,18 @@
+#summary State used when a caveman is entering a door
+#labels Phase-Design
+
+= `State_Using_Door`=
+
+This is an intermediate state used when entering a door. The basic behavior is switching to a new [StateWandering wandering state] determined by the door's destination, but more complex behavior can be programmed
+
+== Possible improvement ==
+
+
+
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
