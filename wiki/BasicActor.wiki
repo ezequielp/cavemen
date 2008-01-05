@@ -2,7 +2,7 @@
 #This is the description of the basic actor class
 
 = `Basic_Actor` =
-_Extends `pygame.sprite.Sprite` and `state_machine`_
+_Extends `pygame.sprite.Sprite`_
 
 This class will implement the basic requirements to any entity moving in the game's world. It inherits from pygame's Sprite class and from the [StateMachineClass `state_machine` class] to implement AI.
 
