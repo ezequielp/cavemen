@@ -1,0 +1,16 @@
+#summary Useful Links
+
+= Finite State Machines (FSM) =
+
+[http://sourceforge.net/projects/fsmdesigner/ Useful tool to diagram states of the FSM]
+[http://ai-depot.com/FiniteStateMachines/FSM.html Free information on FSM]
+[http://www.ai-junkie.com/architecture/state_driven/tut_state1.html Excerpt of the book _Programming Game AI by Example_ from where I extract most of the ideas for FSM]
+
+
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
