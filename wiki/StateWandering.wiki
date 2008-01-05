@@ -1,0 +1,29 @@
+#summary Basic state for a wandering caveman
+#labels Phase-Design
+
+= `State_Wandering` =
+
+This state makes a caveman travel through the map using a basic diffusive behavior. The caveman will move from one cliff to the other of its current floor and will decide to travel to a safer ground in a non deterministic way.
+ 
+=== Possible improvements ===
+
+ * Make movement more "human like", i.e. Make the caveman stop to rest, add noise to trajectory (see [http://freespace.virgin.net/hugo.elias/models/m_perlin.htm Perlin noise]).
+
+== Enter behavior ==
+
+When entering to a new floor, it will change the agent's position to the corresponding door and load the left, right cliff positions and the doors.
+
+== Execute behavior ==
+
+Execute will decide one of the following objectives and walk there using a [SteeringBehaviorSeek seek steering]:
+ # left cliff
+ # right cliff
+ # door
+
+It will change to the [StateEnteringDoor entering door state] when arrived at an objective door.
+It will change direction and objective when arrived at a cliff.
+
+
+
+
+== Parents ==
