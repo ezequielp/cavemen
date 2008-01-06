@@ -1,0 +1,16 @@
+#summary A class defining a caveman
+#labels Phase-Design
+
+= Caveman =
+
+The caveman is one of the game entities. It moves on the different floors of the level.
+
+= Features Needed =
+
+ * It stores the floor it is standing on and moves over it with a 1D coordinate
+ * All the caveman movements are constrained on the floor
+ * It starts in a [StateWandering wandering state] and diffuses [StateEnterDoor through doors].
+
+== Parent ==
+
+[BasicActor `Basic_Actor`
