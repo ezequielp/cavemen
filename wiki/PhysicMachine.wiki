@@ -1,0 +1,8 @@
+#summary The physics engine
+
+= Introduction =
+
+This is the physics engine of the game. For the moment (for the sake of simplicity) it is implemented as a Finite State Machine (FSM) that has two possible states. For the final version we will like to implement a complete physic engine here (Bullet,Tokamak, Newton, ODE, etc..) 
+
+
+= Details =
