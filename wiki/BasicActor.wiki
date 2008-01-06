@@ -1,5 +1,5 @@
 #summary This is the description of the basic actor class
-#labels Phase-Design
+#labels Phase-Design,Actor,Featured
 
 = `Basic_Actor` =
 _Extends `pygame.sprite.Sprite`_
