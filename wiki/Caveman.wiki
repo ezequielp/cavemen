@@ -13,4 +13,4 @@ The caveman is one of the game entities. It moves on the different floors of the
 
 == Parent ==
 
-[BasicActor `Basic_Actor`
+[BasicActor `Basic_Actor`]
