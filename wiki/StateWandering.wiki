@@ -3,11 +3,11 @@
 
 = `State_Wandering` =
 
-This state makes a caveman travel through the map using a basic diffusive behavior. The caveman will move from one cliff to the other of its current floor and will decide to travel to a safer ground in a non deterministic way.
+This state makes a walking actor(like a caveman) travel through the map using a basic diffusive behavior. The caveman will move from one cliff to the other of its current floor and will decide to travel to a safer ground in a non deterministic way.
  
 === Possible improvements ===
 
- * Make movement more "human like", i.e. Make the caveman stop to rest, add noise to trajectory (see [http://freespace.virgin.net/hugo.elias/models/m_perlin.htm Perlin noise]).
+ * Make movement more "human like", i.e. Make the actor stop to rest, add noise to trajectory (see [http://freespace.virgin.net/hugo.elias/models/m_perlin.htm Perlin noise]).
 
 == Enter behavior ==
 
