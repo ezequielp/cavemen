@@ -1,12 +1,12 @@
 import random
 from pygame.locals import *
 import pygame
+import sprites
 
 #from numpy import array, matrix
 
-from variables import SCREENRECT
+SCREENRECT=Rect(0,0,800,600)
 
-import sprites, items
 random.seed(200)
 
 class Nivel():
@@ -15,9 +15,9 @@ class Nivel():
 
     
     def __init__(self, file=None):
-        self.enemigos=pygame.sprite.RenderUpdates()
-        self.amigos=pygame.sprite.RenderUpdates()
-        self.pisos=pygame.sprite.Group()
+        self.enemies=pygame.sprite.RenderUpdates()
+        self.friends=pygame.sprite.RenderUpdates()
+        self.floors=pygame.sprite.Group()
         self.all=pygame.sprite.RenderUpdates()
         if file is not None:
             self.populate_from_file(file)
@@ -31,12 +31,12 @@ class Nivel():
         for floor_id in config['Floors']:
             placement=list(config['Relative Placement'][floor_id])
             placement[1]=600-placement[1]
-            floors[floor_id]=sprites.Piso(placement, round(config['Floor Sizes'][floor_id]/32.0))
+            floors[floor_id]=sprites.Floor(placement, round(config['Floor Sizes'][floor_id]/32.0))
         
         gates= dict()
         for gate1_id in config['Gate Graph']:
             gate2_id=config['Gate Graph'][gate1_id][0]
-            gates[gate1_id], gates[gate2_id] = items.Gate.create_connected()
+            gates[gate1_id], gates[gate2_id] = sprites.Gate.create_connected()
                 
         for floor_id in config['Hierarchy']:
             for gate_id in config['Hierarchy'][floor_id]:
@@ -45,23 +45,23 @@ class Nivel():
         num_walkers=config['Options'].get('Walkers', 50)
         
         for floor in floors.values():
-            self.pisos.add(floor)
+            self.floors.add(floor)
         
         for i in range(num_walkers):
-            caminante=sprites.Caminante([self.enteroAzar(50,700),600-config['Relative Placement']['A'][1]], True)
+            caminante=sprites.Caveman([self.enteroAzar(50,700),600-config['Relative Placement']['A'][1]-50], True)
             caminante.id=i
-            self.enemigos.add(caminante)
+            self.enemies.add(caminante)
     
         #personaje=sprites.Volador([400,500], False)
-        #nivel_actual.amigos.add(personaje)
+        #nivel_actual.friends.add(personaje)
         
         for floor_id in config['Initial Bodycount']:
             floors[floor_id].death_toll=config['Initial Bodycount'].get(floor_id, 0)
             
-        self.all.add([x.gates for x in self.pisos])
-        self.all.add(self.amigos)
-        self.all.add(self.enemigos)
-        self.all.add(self.pisos)
+        self.all.add([x.gates for x in self.floors])
+        self.all.add(self.friends)
+        self.all.add(self.enemies)
+        self.all.add(self.floors)
         
     def sanity_check(self, conf_module):
         main_keys=['Floors', 'Gates', 'Hierarchy', 'Relative Placement', 'Gate Graph', 'Floor Sizes', 'Options']
@@ -145,7 +145,7 @@ def main():
     
 
     
-    sprites.Basic_Actor.nivel_actual=nivel_actual
+    sprites.Basic_Actor.set_level(nivel_actual)
     
     #keep track of time
     clock = pygame.time.Clock()
@@ -183,7 +183,7 @@ def main():
                     personaje.acelerar(0)
             elif event.type == MOUSEBUTTONUP:
                 print 'Click at '+str(event.pos)
-                caught=pygame.sprite.spritecollide(Mouse(event.pos),nivel_actual.enemigos, False)
+                caught=pygame.sprite.spritecollide(Mouse(event.pos),nivel_actual.enemies, False)
                 if len(caught)>0:
                     caught[0].kill()
                     print "One dead"

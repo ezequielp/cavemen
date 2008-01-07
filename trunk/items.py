@@ -3,6 +3,7 @@ from pygame.transform import scale
 from pygame import Rect
 import pygame
 from numpy import array
+import os
 
 #static method trick
 class Callable:
@@ -16,7 +17,7 @@ class Gate(Item, Sprite):
     def __init__(self):
         Sprite.__init__(self)
         self.name="gate"
-        self.image=pygame.image.load("gate.png").convert()
+        self.image=pygame.image.load(os.path.join("media","Door.png")).convert()
         self.image.set_colorkey(self.image.get_at((0,0)), pygame.locals.RLEACCEL)
         self.image=scale(self.image, (30,34))
         self.rect=self.image.get_rect()
