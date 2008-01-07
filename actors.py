@@ -1,19 +1,27 @@
 from engine import Physics_Machine
 from physics_states import *
+from os import path
 import pygame
+from pygame.locals import *
+import random
+
+class Callable:
+    def __init__(self, anycallable):
+        self.__call__ = anycallable
+  
 
 def load_sequence(file_name, total_images, load_mirror=True):
     '''Loads an image an splits it in frames. If load_mirror is True, the function will return a list of two lists, the first with the sequence of images and the second with the images flipped along the y axis. If load_mirror is False, the function will return the list of images
     Should find a better way, maybe loading to an image pool at startup'''
     sequence=[]
-    all=pygame.image.load(name).convert()
+    all=pygame.image.load(path.join("media",file_name)).convert()
     all.set_colorkey(all.get_at((0,0)), RLEACCEL)
     
     image_height=all.get_height()
     image_width=all.get_width()/total_images
     
 
-    sequence.append([all.subsurface((x,0,image_width,image_width))for x in range(0,image_width*total_images,image_width)])
+    sequence.append([all.subsurface((x,0,image_width,image_height))for x in range(0,image_width*total_images,image_width)])
         #Creates characters looking to the right
     if load_mirror:
         sequence.append([pygame.transform.flip(sequence[0][x],True,False) for x in range(total_images)])
@@ -27,11 +35,15 @@ class Basic_Actor(pygame.sprite.Sprite):
                #[0,1]])
     #rY=array([[1,0],
                #[0,-1]])
-    
+    __level=None
     
     def __init__(self, starting_position):
         pygame.sprite.Sprite.__init__(self)
-        self.movement_state=Physics_Machine(starting_position)
+        
+        self.rect=pygame.Rect((0,0), (0,0))
+        self.rect.center=starting_position
+        
+        self.movement_state=Physics_Machine(self, starting_position)
         self.movement_state.set_state(PS_freefall)
         #self.next_update=10
         #self.velocidad=array([0.0, 0.0])
@@ -53,6 +65,16 @@ class Basic_Actor(pygame.sprite.Sprite):
     def update(self, current_time):
         pygame.sprite.Sprite.update(self)
         self.movement_state.update_state(current_time)
+        
+    def set_level(level):
+        if Basic_Actor.__level is None:
+            Basic_Actor.__level=level
+        else:
+            raise BaseException, "level already defined!..."
+    
+    set_level=Callable(set_level) 
+    def get_level(self):
+        return Basic_Actor.__level
 
 class Caveman(Basic_Actor):
     image=None
@@ -62,50 +84,55 @@ class Caveman(Basic_Actor):
     def __init__(self, initial_position, AI):
         Basic_Actor.__init__(self, initial_position)
 
-        if Caminante.image is None:
-            Caminante._images=[[pygame.transform.scale(x, (x.get_width()/2, x.get_height()/2)) for x in y] for y in load_sequence("CavemanAnim.png", 4)]
-            Caminante.image=Caminante._images[0][0]
-            Caminante.displacement_table=[3, 5, 5, 5]
-
-        self.rect=self.image.get_rect()
-        self.rect.center=initial_position
+        if Caveman.image is None:
+            Caveman._images=[[pygame.transform.scale(x, (x.get_width()/2, x.get_height()/2)) for x in y] for y in load_sequence("CavemanAnim.png", 4)]
+            
+            Caveman.displacement_table=[3, 5, 5, 5]
+        self.image=Caveman._images[0][0]
+        self.rect.size=self.image.get_size()
         self.crect=self.rect
 
         self.next_image=self.current_image=0
         
         self.orientation=random.randint(0,1)*2-1
 
-        self.image=Caminante._images[0][0]
+        self.image=Caveman._images[0][0]
         self.current_image=0
         self.update_interval=200
         
         self.next_image_update=self.update_interval
         self.displacement=0
+        
+        self.steering_acceleration=[-0.001,0]
 
     def set_position(self, coordinates):
-        if self.standing_on is not None:
+        if hasattr(self,'standing_on'):
             displacement=coordinates[0]-self.rect.center[0]
-            if displacement>0:
+            self.displacement+=displacement
+            if self.displacement>0:
                 self.orientation=1
-                self.displacement+=displacement
+                self.rect.center=[int(coordinates[0]), int(coordinates[1])]
             else:
                 self.orientation=-1
-                self.displacement-=displacement            
-
-        
-        self.rect.center=[int(rect[0]), int(rect[1])]
+                self.rect.center=[int(coordinates[0])+1, int(coordinates[1])]
+        else:
+            self.rect.center=[int(coordinates[0]), int(coordinates[1])]
         if hasattr(self, 'crect'):
             self.crect.center=self.rect.center
 
+
+
     def update(self, current_time):
-        Base_Actor.update(self,current_time)
+        Basic_Actor.update(self,current_time)
         
         while self.displacement>=self.displacement_table[self.current_image]:
             self.displacement-=self.displacement_table[self.current_image]
             self.next_image+=1
+            if self.next_image==4:
+                self.next_image=0
             
         if not self.next_image == self.current_image:
-            self.image=Caminante._images[(self.orientacion+1)/2][self.current_image]
+            self.image=Caveman._images[(self.orientation+1)/2][self.current_image]
             self.current_image=self.next_image
 
                 
