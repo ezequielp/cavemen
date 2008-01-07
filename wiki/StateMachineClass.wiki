@@ -1,5 +1,5 @@
+#summary Description of the class used to define a state machine
 #labels Phase-Design
-#Description of the class used to define a state machine
 
 = State_machine_class =
 
