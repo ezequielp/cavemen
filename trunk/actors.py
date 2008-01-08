@@ -103,13 +103,13 @@ class Caveman(Basic_Actor):
         self.next_image_update=self.update_interval
         self.displacement=0
         
-        self.steering_acceleration=[-0.001,0]
+        self.steering_acceleration=[0,0]
 
     def set_position(self, coordinates):
         if hasattr(self,'standing_on'):
             displacement=coordinates[0]-self.rect.center[0]
-            self.displacement+=displacement
-            if self.displacement>0:
+            self.displacement+=self.orientation*displacement
+            if displacement>0:
                 self.orientation=1
                 self.rect.center=[int(coordinates[0]), int(coordinates[1])]
             else:
