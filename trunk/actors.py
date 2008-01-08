@@ -1,4 +1,4 @@
-from engine import Physics_Machine
+import engine
 from physics_states import *
 from os import path
 import pygame
@@ -43,7 +43,7 @@ class Basic_Actor(pygame.sprite.Sprite):
         self.rect=pygame.Rect((0,0), (0,0))
         self.rect.center=starting_position
         
-        self.movement_state=Physics_Machine(self, starting_position)
+        self.movement_state=engine.Physics_Machine(self, starting_position)
         self.movement_state.set_state(PS_freefall)
         #self.next_update=10
         #self.velocidad=array([0.0, 0.0])
@@ -92,7 +92,7 @@ class Caveman(Basic_Actor):
         self.rect.size=self.image.get_size()
         self.crect=self.rect
 
-        self.next_image=self.current_image=0
+        self.next_image=self.current_image=random.randint(0,3)
         
         self.orientation=random.randint(0,1)*2-1
 
