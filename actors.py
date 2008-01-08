@@ -1,5 +1,6 @@
 import engine
 from physics_states import *
+from states import *
 from os import path
 import pygame
 from pygame.locals import *
@@ -104,7 +105,10 @@ class Caveman(Basic_Actor):
         self.displacement=0
         
         self.steering_acceleration=[0,0]
-        self.max_steering=random.uniform(0.001, 0.003)
+        self.max_steering=random.gauss(0.002, 0.0002)
+        
+        self.state=engine.State_Machine(self)
+        self.state.set_state(Wandering)
 
     def set_position(self, coordinates):
         if hasattr(self,'standing_on'):
@@ -120,12 +124,17 @@ class Caveman(Basic_Actor):
             self.rect.center=[int(coordinates[0]), int(coordinates[1])]
         if hasattr(self, 'crect'):
             self.crect.center=self.rect.center
+            
+    def get_position(self):
+        return self.rect.center
 
 
 
     def update(self, current_time):
         Basic_Actor.update(self,current_time)
         
+        self.state.update_state(current_time)
+
         while self.displacement>=self.displacement_table[self.current_image]:
             self.displacement-=self.displacement_table[self.current_image]
             self.next_image+=1

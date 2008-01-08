@@ -58,7 +58,7 @@ class Nivel():
         for floor_id in config['Initial Bodycount']:
             floors[floor_id].death_toll=config['Initial Bodycount'].get(floor_id, 0)
             
-        self.all.add([x.gates for x in self.floors])
+        self.all.add([x.items for x in self.floors])
         self.all.add(self.friends)
         self.all.add(self.enemies)
         self.all.add(self.floors)

@@ -8,6 +8,8 @@ class State_Machine():
     def __init__(self, parent_actor):
         assert isinstance(parent_actor, actors.Basic_Actor), str(parent_actor)+" is not an actor."
         self.__parent_actor=parent_actor
+        self.previous_time=0
+
     
     def set_state(self, new_state):
         if self.__state:
@@ -18,7 +20,12 @@ class State_Machine():
         self.__state.enter()
         
     def update_state(self, current_time):
-        self.__state.execute()
+        if not self.previous_time:
+            self.previous_time=current_time
+        if current_time>self.previous_time+self.__state.time_step:
+            self.__state.execute()
+            self.previous_time=current_time
+
         
     def get_actor(self):
         return self.__parent_actor
@@ -31,13 +38,8 @@ class Physics_Machine(State_Machine):
         State_Machine.__init__(self, parent_actor)
         self.position=array(initial_position)
         self.velocity=array(initial_velocity)
-        self.previous_time=0
 
         
     def update_state(self, current_time):
-        if not self.previous_time:
-            self.previous_time=current_time
-        if current_time>self.previous_time+self.get_current_state().time_step:
-            self.get_current_state().execute()
-            self.previous_time=current_time
+        State_Machine.update_state(self, current_time)
     
