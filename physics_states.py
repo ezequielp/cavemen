@@ -12,7 +12,7 @@ class Base_Physics_State():
         pass
     
 class PS_freefall(Base_Physics_State):
-    GRAVITY=array([0, 0.00045])
+    GRAVITY=array([0, 0.0005])
     
     def __init__(self, parent_physics_machine):
         self.__parent=parent_physics_machine.get_actor()
@@ -69,6 +69,7 @@ class PS_walking():
         self.positionY=self.__parent_PM.position[1]
         self.right_cliff=self.__parent.standing_on.crect.right
         self.left_cliff=self.__parent.standing_on.crect.left
+        self.__parent.steering_acceleration[0]=-0.001
 
 
     def exit(self):
