@@ -137,7 +137,7 @@ class Caveman(Basic_Actor):
 
                 
     def kill(self):
-        if self.standing_on is not None:
+        if hasattr(self, 'standing_on') and self.standing_on is not None:
             self.standing_on.death_toll+=1
         #self.nivel_actual.all.add(Ghost(self))
         pygame.sprite.Sprite.kill(self)
