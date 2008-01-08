@@ -125,7 +125,6 @@ class Floor(pygame.sprite.Sprite):
     image=None
     _images=[]
     total_images=8
-    gates=[]
     def __init__(self, initial_position, ancho=2):
         pygame.sprite.Sprite.__init__(self)
         assert ancho>=2, 'Width too small'
@@ -147,6 +146,12 @@ class Floor(pygame.sprite.Sprite):
         self.crect=self.rect.inflate(-32,0)
         self.death_toll=0
         
+        self.items=[]
+        right_cliff=Cliff(self)
+        left_cliff=Cliff(self)
+        right_cliff.set_position(self.crect.topright)
+        left_cliff.set_position(self.crect.topleft)
+        self.items.extend([right_cliff, left_cliff])
        
 
     def update(self, current_time):
@@ -155,12 +160,14 @@ class Floor(pygame.sprite.Sprite):
 
     def attach_gate(self, gate, position):
         gate.parent=self
-        self.gates.append(gate)
+        self.items.append(gate)
         
         position[0]=self.crect.topleft[0]+position[0]
         position[1]=self.crect.topleft[1]+position[1]
 
         gate.set_position(position)
         
+    def get_items(self):
+        return self.items
 
         

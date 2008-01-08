@@ -69,7 +69,7 @@ class PS_walking():
         self.positionY=self.__parent_PM.position[1]
         self.right_cliff=self.__parent.standing_on.crect.right
         self.left_cliff=self.__parent.standing_on.crect.left
-        self.__parent.steering_acceleration[0]=-self.__parent.max_steering
+        #self.__parent.steering_acceleration[0]=-self.__parent.max_steering
 
 
     def exit(self):
@@ -91,12 +91,12 @@ class PS_walking():
 
         #should be replaced by a proper evade in a wandering state to generate more interesting outcomes like walkers falling
     
-        if self.left_cliff>self.position and self.velocity<0:
-            self.velocity=0
-            self.__parent.steering_acceleration[0]=-self.__parent.steering_acceleration[0]
-        elif self.right_cliff<self.position and self.velocity>0:
-            self.velocity=0
-            self.__parent.steering_acceleration[0]=-self.__parent.steering_acceleration[0]
+        #if self.left_cliff>self.position and self.velocity<0:
+            #self.velocity=0
+            #self.__parent.steering_acceleration[0]=-self.__parent.steering_acceleration[0]
+        #elif self.right_cliff<self.position and self.velocity>0:
+            #self.velocity=0
+            #self.__parent.steering_acceleration[0]=-self.__parent.steering_acceleration[0]
 
 
 
