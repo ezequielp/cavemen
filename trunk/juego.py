@@ -18,7 +18,7 @@ class Nivel():
         self.enemies=pygame.sprite.RenderUpdates()
         self.friends=pygame.sprite.RenderUpdates()
         self.floors=pygame.sprite.Group()
-        self.all=pygame.sprite.RenderUpdates()
+        self.all=pygame.sprite.OrderedUpdates()
         if file is not None:
             self.populate_from_file(file)
 
@@ -59,9 +59,10 @@ class Nivel():
             floors[floor_id].death_toll=config['Initial Bodycount'].get(floor_id, 0)
             
         self.all.add([x.items for x in self.floors])
+        self.all.add(self.floors)
+
         self.all.add(self.friends)
         self.all.add(self.enemies)
-        self.all.add(self.floors)
         
     def sanity_check(self, conf_module):
         main_keys=['Floors', 'Gates', 'Hierarchy', 'Relative Placement', 'Gate Graph', 'Floor Sizes', 'Options']

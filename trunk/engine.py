@@ -20,8 +20,8 @@ class State_Machine():
         self.__state.enter()
         
     def update_state(self, current_time):
-        if not self.previous_time:
-            self.previous_time=current_time
+        #if not self.previous_time:
+            #self.previous_time=current_time
         if current_time>self.previous_time+self.__state.time_step:
             self.__state.execute()
             self.previous_time=current_time
