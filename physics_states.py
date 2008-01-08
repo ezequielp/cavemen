@@ -56,12 +56,13 @@ class PS_freefall(Base_Physics_State):
         actor.set_position([self.position[0], self.position[1]])
         
 class PS_walking():
+    time_step=20
+    friction=0.9**(time_step/10.0)
     def __init__(self, parent_physics_machine):
         self.__parent=parent_physics_machine.get_actor()
         self.__parent_PM=parent_physics_machine
         
         self.position=self.__parent.rect[0]
-        self.time_step=10
         
     def enter(self):
         self.velocity=self.__parent_PM.velocity[0]
@@ -81,7 +82,7 @@ class PS_walking():
         '''Controls the sprite movement as if it was moving over a surface.
         Todo: surfaces with different coefficient index and properties.'''
         self.velocity=self.velocity+self.__parent.steering_acceleration[0]*self.time_step
-        self.velocity=self.velocity*0.9 #must be configured. Can be set by the object itself
+        self.velocity=self.velocity*PS_walking.friction #must be configured. Can be set by the object itself
             
         self.position=self.position+self.velocity*self.time_step
         

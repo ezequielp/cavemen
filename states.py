@@ -13,7 +13,7 @@ class Wandering(Base_State):
                 self.__parent_PM=parent_machine
         
                 self.position=self.__parent.rect
-                self.time_step=50
+                self.time_step=20
                 self.target=None
         
         def enter(self):
