@@ -56,8 +56,8 @@ class PS_freefall(Base_Physics_State):
         actor.set_position([self.position[0], self.position[1]])
         
 class PS_walking():
-    time_step=20
-    friction=0.9**(time_step/10.0)
+    time_step=10
+    friction=0.9
     def __init__(self, parent_physics_machine):
         self.__parent=parent_physics_machine.get_actor()
         self.__parent_PM=parent_physics_machine
