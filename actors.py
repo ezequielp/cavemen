@@ -104,6 +104,7 @@ class Caveman(Basic_Actor):
         self.displacement=0
         
         self.steering_acceleration=[0,0]
+        self.max_steering=random.uniform(0.001, 0.003)
 
     def set_position(self, coordinates):
         if hasattr(self,'standing_on'):
