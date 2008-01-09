@@ -14,11 +14,14 @@ class Nivel():
     enteroAzar=random.randint
 
     
+    
     def __init__(self, file=None):
-        self.enemies=pygame.sprite.RenderUpdates()
-        self.friends=pygame.sprite.RenderUpdates()
+        self.enemies=pygame.sprite.Group()
+        self.friends=pygame.sprite.Group()
         self.floors=pygame.sprite.Group()
         self.all=pygame.sprite.OrderedUpdates()
+        self.visible=pygame.sprite.OrderedUpdates()
+        
         if file is not None:
             self.populate_from_file(file)
 
@@ -64,6 +67,8 @@ class Nivel():
         self.all.add(self.friends)
         self.all.add(self.enemies)
         
+        self.visible.add(self.all)
+        
     def sanity_check(self, conf_module):
         main_keys=['Floors', 'Gates', 'Hierarchy', 'Relative Placement', 'Gate Graph', 'Floor Sizes', 'Options']
         for key in main_keys:
@@ -107,6 +112,14 @@ class Nivel():
                 keys.append(k)
             
         return inv
+    
+    def set_visible(self, sprite):
+        if sprite in self.all and not sprite in self.visible:
+            self.visible.add(sprite)
+            
+    def set_invisible(self, sprite):
+        if sprite in self.all and sprite in self.visible:
+            self.visible.remove(sprite)
     
 class Mouse(pygame.sprite.Sprite):
     def __init__(self, position):
@@ -196,11 +209,11 @@ def main():
         nivel_actual.all.update(pygame.time.get_ticks())
 
         #redraw sprites
-        rectlist=nivel_actual.all.draw(screen)
+        rectlist=nivel_actual.visible.draw(screen)
         pygame.display.update(rectlist)
 
         clock.tick(30)
-        nivel_actual.all.clear(screen, background)
+        nivel_actual.visible.clear(screen, background)
         
     print clock.get_fps()
     pygame.display.quit()

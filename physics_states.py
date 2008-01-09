@@ -68,14 +68,14 @@ class PS_walking():
         self.velocity=self.__parent_PM.velocity[0]
         self.position=self.__parent_PM.position[0]
         self.positionY=self.__parent_PM.position[1]
-        self.right_cliff=self.__parent.standing_on.crect.right
-        self.left_cliff=self.__parent.standing_on.crect.left
+#        self.right_cliff=self.__parent.standing_on.crect.right
+#        self.left_cliff=self.__parent.standing_on.crect.left
         #self.__parent.steering_acceleration[0]=-self.__parent.max_steering
 
 
     def exit(self):
-        self.__parent_PM.velocity[0], self.__parent_PM.velocity[1]=self.velocity[0], 0
-        self.__parent_PM.position[0]=self.position[0]
+        self.__parent_PM.velocity[0], self.__parent_PM.velocity[1]=self.velocity, 0
+        self.__parent_PM.position[0]=self.position
         self.__parent.standing_on=None
     
     def execute(self):
