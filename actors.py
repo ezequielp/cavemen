@@ -1,10 +1,10 @@
-import engine
-from physics_states import *
-from states import *
 from os import path
-import pygame
-from pygame.locals import *
 import random
+
+import pygame
+from pygame.sprite import Sprite
+
+from pygame.locals import *
 
 class Callable:
     def __init__(self, anycallable):
@@ -29,34 +29,23 @@ def load_sequence(file_name, total_images, load_mirror=True):
 
     return sequence
 
-class Basic_Actor(pygame.sprite.Sprite):
-    #GRAVEDAD=numpy.array([0, 0.00045]) #9.8 m/s^2 si 52 pixeles=4m
-    #intervalo_tiempo=10
-    #rX=array([[-1,0],
-               #[0,1]])
-    #rY=array([[1,0],
-               #[0,-1]])
+class Basic_Actor(Sprite):
+    from engine import Physics_Machine
+    from engine import State_Machine
     __level=None
     
     def __init__(self, starting_position):
-        pygame.sprite.Sprite.__init__(self)
+        Sprite.__init__(self)
         
         self.rect=pygame.Rect((0,0), (0,0))
         self.rect.center=starting_position
         
-        self.movement_state=engine.Physics_Machine(self, starting_position)
-        self.movement_state.set_state(PS_freefall)
-        #self.next_update=10
-        #self.velocidad=array([0.0, 0.0])
-        #self.posicion=array([0.0, 0.0])
-        #self.aceleracion=array([0.0,0.0])
-        #self.update_phys=self.phys_freefall
-        #self.object_queue=[]
+        self.movement_state=Basic_Actor.Physics_Machine(self, starting_position)
+
         
     def reset_PM(self):
         self.standing_on=None
-        self.movement_state=engine.Physics_Machine(self, self.rect.center)
-        self.movement_state.set_state(PS_freefall)
+        self.movement_state=Basic_Actor.Physics_Machine(self, self.rect.center)
         
     def set_position(self, coordinates):
         self.rect.center=[int(rect[0]), int(rect[1])]
@@ -69,7 +58,7 @@ class Basic_Actor(pygame.sprite.Sprite):
             self.object_queue.append(object)
             
     def update(self, current_time):
-        pygame.sprite.Sprite.update(self)
+        Sprite.update(self)
         self.movement_state.update_state(current_time)
         
     def set_level(level):
@@ -118,8 +107,8 @@ class Caveman(Basic_Actor):
         self.steering_acceleration=[0,0]
         self.max_steering=random.gauss(0.002, 0.0002)
         
-        self.state=engine.State_Machine(self)
-        self.state.set_state(Wandering)
+        self.state=Basic_Actor.State_Machine(self)
+        #self.state.set_state(Wandering)
 
     def set_position(self, coordinates):
         if hasattr(self,'standing_on'):
@@ -168,6 +157,6 @@ class Caveman(Basic_Actor):
         if hasattr(self, 'standing_on') and self.standing_on is not None:
             self.standing_on.death_toll+=1
         #self.nivel_actual.all.add(Ghost(self))
-        pygame.sprite.Sprite.kill(self)
+        Sprite.kill(self)
 
     

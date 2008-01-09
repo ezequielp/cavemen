@@ -1,7 +1,7 @@
-from engine import Physics_Machine
+#from engine import Physics_Machine
 from pygame.sprite import spritecollide
 from numpy import array
-import sprites 
+#import sprites 
 
 class Base_Physics_State():
 
