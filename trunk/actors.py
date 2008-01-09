@@ -53,6 +53,11 @@ class Basic_Actor(pygame.sprite.Sprite):
         #self.update_phys=self.phys_freefall
         #self.object_queue=[]
         
+    def reset_PM(self):
+        self.standing_on=None
+        self.movement_state=engine.Physics_Machine(self, self.rect.center)
+        self.movement_state.set_state(PS_freefall)
+        
     def set_position(self, coordinates):
         self.rect.center=[int(rect[0]), int(rect[1])]
         if hasattr(self, 'crect'):
@@ -76,6 +81,12 @@ class Basic_Actor(pygame.sprite.Sprite):
     set_level=Callable(set_level) 
     def get_level(self):
         return Basic_Actor.__level
+    
+    def visible(self):
+        Basic_Actor.__level.set_visible(self)
+        
+    def invisible(self):
+        Basic_Actor.__level.set_invisible(self)
 
 class Caveman(Basic_Actor):
     image=None
@@ -124,7 +135,14 @@ class Caveman(Basic_Actor):
             self.rect.center=[int(coordinates[0]), int(coordinates[1])]
         if hasattr(self, 'crect'):
             self.crect.center=self.rect.center
-            
+    
+    def set_new_floor(self, parent, coordinates):
+        self.rect.center=coordinates
+        if hasattr(self, 'crect'):
+            self.crect.center=self.rect.center
+        self.displacement=0
+        self.reset_PM()
+                       
     def get_position(self):
         return self.rect.center
 
