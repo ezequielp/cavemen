@@ -1,5 +1,6 @@
 #from engine import Physics_Machine
 from pygame.sprite import spritecollide
+from pygame.sprite import Group
 from numpy import array
 #import sprites 
 
@@ -13,17 +14,21 @@ class Base_Physics_State():
     
 class PS_freefall(Base_Physics_State):
     GRAVITY=array([0, 0.0005])
-    
+    #lower_floors=Group()
     def __init__(self, parent_physics_machine):
         self.__parent=parent_physics_machine.get_actor()
         self.__parent_PM=parent_physics_machine
         
         self.position=self.__parent.rect
         self.time_step=10
+        self.i=0
         
     def enter(self):
         self.velocity=array([self.__parent_PM.velocity[0], self.__parent_PM.velocity[1]])
         self.position=array([self.__parent_PM.position[0], self.__parent_PM.position[1]])
+        #for floor in self.__parent.get_level().floors:
+            #if floor.rect.top>self.position[1]:
+                #self.lower_floors.add(floor)
 
     def exit(self):
         self.__parent_PM.velocity[0], self.__parent_PM.velocity[1]=self.velocity[0], self.velocity[1]
@@ -35,23 +40,25 @@ class PS_freefall(Base_Physics_State):
         self.velocity=self.velocity+(actor.steering_acceleration+PS_freefall.GRAVITY)*self.time_step
         
         self.position=self.position+self.velocity*self.time_step
-        
-        for floor in spritecollide(actor, actor.get_level().floors, False):
-            if not actor.crect.colliderect(floor.crect):
-                continue
-            if -16<floor.crect.top-actor.crect.bottom<3 and self.velocity[1]>=0:
-                self.velocity[1]=0
-                actor.standing_on=floor
-                self.position[1]=floor.crect.top-actor.rect.height/2
-                self.__parent_PM.set_state(PS_walking)
-                continue
-            
-            elif -16<floor.crect.left-actor.crect.right<3 and self.velocity[0]>0:
-                self.velocity[0]=-self.velocity[0]
-            elif -3<floor.crect.right-actor.crect.left<16 and self.velocity[0]<0:
-                self.velocity[0]=-self.velocity[0]
-            elif -3<floor.crect.bottom-actor.crect.top<16 and self.velocity[1]<0:
-                self.velocity[1]=-self.velocity[1]
+        if self.i==4:
+            for floor in spritecollide(actor, actor.get_level().floors, False):
+                if not actor.crect.colliderect(floor.crect):
+                    continue
+                if -16<floor.crect.top-actor.crect.bottom<3 and self.velocity[1]>=0:
+                    self.velocity[1]=0
+                    actor.standing_on=floor
+                    self.position[1]=floor.crect.top-actor.rect.height/2
+                    self.__parent_PM.set_state(PS_walking)
+                    continue
+                
+                elif -16<floor.crect.left-actor.crect.right<3 and self.velocity[0]>0:
+                    self.velocity[0]=-self.velocity[0]
+                elif -3<floor.crect.right-actor.crect.left<16 and self.velocity[0]<0:
+                    self.velocity[0]=-self.velocity[0]
+                elif -3<floor.crect.bottom-actor.crect.top<16 and self.velocity[1]<0:
+                    self.velocity[1]=-self.velocity[1]
+            self.i=0
+        else: self.i+=1
 
         actor.set_position([self.position[0], self.position[1]])
         
