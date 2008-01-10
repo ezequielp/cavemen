@@ -1,6 +1,7 @@
 from numpy import array, matrix
 from physics_states import PS_freefall as Most_General_PS
 from states import Wandering as Initial_State
+import random 
 
 class State_Machine():
     __state= None
@@ -10,7 +11,6 @@ class State_Machine():
     def __init__(self, parent_actor):
         assert isinstance(parent_actor, State_Machine.actors.Basic_Actor), str(parent_actor)+" is not an actor."
         self.__parent_actor=parent_actor
-        self.previous_time=0
         self.set_state(Initial_State) #The machine starts in the initial state 
 
     
@@ -20,6 +20,8 @@ class State_Machine():
             
             
         self.__state=new_state(self)
+        self.previous_time=random.uniform(0, self.__state.time_step)
+
         self.__state.enter()
         
     def update_state(self, current_time):

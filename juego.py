@@ -21,7 +21,8 @@ class Nivel():
         self.floors=pygame.sprite.Group()
         self.all=pygame.sprite.OrderedUpdates()
         self.visible=pygame.sprite.OrderedUpdates()
-        
+        sprites.Basic_Actor.set_level(self)
+
         if file is not None:
             self.populate_from_file(file)
 
@@ -51,7 +52,7 @@ class Nivel():
             self.floors.add(floor)
         
         for i in range(num_walkers):
-            caminante=sprites.Caveman([self.enteroAzar(50,700),600-config['Relative Placement']['A'][1]-50], True)
+            caminante=sprites.Caveman([self.enteroAzar(50,700),600-config['Relative Placement']['A'][1]-10], True)
             caminante.id=i
             self.enemies.add(caminante)
     
@@ -120,7 +121,10 @@ class Nivel():
     def set_invisible(self, sprite):
         if sprite in self.all and sprite in self.visible:
             self.visible.remove(sprite)
-    
+            
+    def update(self, current_time):
+        self.all.update(current_time)
+        
 class Mouse(pygame.sprite.Sprite):
     def __init__(self, position):
         pygame.sprite.Sprite.__init__(self)
@@ -159,7 +163,6 @@ def main():
     
 
     
-    sprites.Basic_Actor.set_level(nivel_actual)
     
     #keep track of time
     clock = pygame.time.Clock()
@@ -206,19 +209,20 @@ def main():
         
         
         #update sprites
-        nivel_actual.all.update(pygame.time.get_ticks())
+        nivel_actual.update(pygame.time.get_ticks())
 
         #redraw sprites
         rectlist=nivel_actual.visible.draw(screen)
         pygame.display.update(rectlist)
 
-        clock.tick(30)
+        clock.tick(50)
         nivel_actual.visible.clear(screen, background)
+        pygame.display.set_caption("fps: " + str(clock.get_fps()))
+
         
     print clock.get_fps()
     pygame.display.quit()
         
-
 if __name__ == '__main__':
     main()
     #import profile
