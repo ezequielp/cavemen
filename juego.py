@@ -10,11 +10,19 @@ SCREENRECT=Rect(0,0,800,600)
 random.seed(200)
 
 class Nivel():
-    bordes=Rect(0,0, 100, 100) #la unidad estandard es el metro
+    #bordes=Rect(0,0, 100, 100) 
     enteroAzar=random.randint
+    import pymunk as pm
+    from pymunk.vec2d import vec2d
 
+    #sync_list=[]
     
+    pm.init_pymunk()
+    space = pm.Space()
+    space.gravity = vec2d(0.0, -900.0)
     
+
+    groups={'FLOORS':1, 'CAVEMEN':2}
     def __init__(self, file=None):
         self.enemies=pygame.sprite.Group()
         self.friends=pygame.sprite.Group()
@@ -22,10 +30,55 @@ class Nivel():
         self.all=pygame.sprite.OrderedUpdates()
         self.visible=pygame.sprite.OrderedUpdates()
         sprites.Basic_Actor.set_level(self)
-
+        
+        self.space.resize_static_hash()
+        self.space.resize_active_hash()
+        
+        self.background=pygame.Surface(SCREENRECT.size).convert()
+        
         if file is not None:
             self.populate_from_file(file)
 
+    def set_as_BG(self, item):
+        self.background.blit(item.image, item.rect)
+        
+    def transform_Y(self, Ycoord):
+        return SCREENRECT.size[1]-Ycoord
+    
+    def embody_floor(self, floor):
+        vec2d=self.vec2d
+        
+        transform_Y=self.transform_Y
+        rect=floor.rect
+        point_a=floor.rect.midleft
+        point_b=floor.rect.midright
+        width=floor.rect.height/2.0
+        
+        body = self.pm.Body(1e100, 1e100)
+        shape= self.pm.Segment(body, vec2d(point_a[0], transform_Y(point_a[1])), vec2d(point_b[0], transform_Y(point_b[1])), width)
+        shape.friction=0.9
+        shape.group=self.groups['FLOORS']
+        
+        self.space.add_static_shape(shape)
+
+    def embody_walker(self, cm):
+        cm=cm[0]
+        rect=cm.rect
+        radius=rect.width/2.0
+        center=rect.center
+        
+        body=self.pm.Body(10,1e100)
+        body.position=center[0], self.transform_Y(center[1])
+
+        shape=self.pm.Circle(body, radius, self.vec2d(0,0))
+        shape.group=self.groups['CAVEMEN']
+
+        self.space.add(shape)
+        self.space.add(body)
+        cm.body=body
+
+        
+        
     def populate_from_file(self, file):
         
         config= eval(open(file).read())
@@ -36,11 +89,15 @@ class Nivel():
             placement=list(config['Relative Placement'][floor_id])
             placement[1]=600-placement[1]
             floors[floor_id]=sprites.Floor(placement, round(config['Floor Sizes'][floor_id]/32.0))
+            self.embody_floor(floors[floor_id])
+            self.set_as_BG(floors[floor_id])
         
         gates= dict()
         for gate1_id in config['Gate Graph']:
             gate2_id=config['Gate Graph'][gate1_id][0]
             gates[gate1_id], gates[gate2_id] = sprites.Gate.create_connected()
+            self.set_as_BG(gates[gate1_id])
+            self.set_as_BG(gates[gate2_id])
                 
         for floor_id in config['Hierarchy']:
             for gate_id in config['Hierarchy'][floor_id]:
@@ -55,6 +112,8 @@ class Nivel():
             caminante=sprites.Caveman([self.enteroAzar(50,700),600-config['Relative Placement']['A'][1]-10], True)
             caminante.id=i
             self.enemies.add(caminante)
+            self.embody_walker([caminante])
+
     
         #personaje=sprites.Volador([400,500], False)
         #nivel_actual.friends.add(personaje)
@@ -68,7 +127,9 @@ class Nivel():
         self.all.add(self.friends)
         self.all.add(self.enemies)
         
-        self.visible.add(self.all)
+        self.visible.add(self.friends)
+        self.visible.add(self.enemies)
+
         
     def sanity_check(self, conf_module):
         main_keys=['Floors', 'Gates', 'Hierarchy', 'Relative Placement', 'Gate Graph', 'Floor Sizes', 'Options']
@@ -124,6 +185,10 @@ class Nivel():
             
     def update(self, current_time):
         self.all.update(current_time)
+        self.space.step(1.0/60)
+        #ok... now sincronizes sprites with pymunk
+        for enemy in self.enemies:
+            enemy.rect.center=[enemy.body.position[0], self.transform_Y(enemy.body.position[1])]
         
 class Mouse(pygame.sprite.Sprite):
     def __init__(self, position):
@@ -131,21 +196,21 @@ class Mouse(pygame.sprite.Sprite):
         self.rect=Rect([position[0], position[1], 10, 10])
         
 def main():
-    
     pygame.init()
-
     screen=pygame.display.set_mode(SCREENRECT.size)
 
-    enteroAzar=random.randint
+    nivel_actual=Nivel('level0.py')
+    
+    background=nivel_actual.background
+    
 
-    #make background
-    background = pygame.Surface(SCREENRECT.size).convert()
+    #enteroAzar=random.randint
+
+
     
- 
-    
-    for i in range(1000):
-        brillo=enteroAzar(0,255)
-        background.set_at((enteroAzar(0,800),enteroAzar(0,600)), (brillo,brillo,brillo) )
+    #for i in range(1000):
+        #brillo=enteroAzar(0,255)
+        #background.set_at((enteroAzar(0,800),enteroAzar(0,600)), (brillo,brillo,brillo) )
 
     #debug_rect=pygame.Rect([570,210,65,52])
     
@@ -157,7 +222,6 @@ def main():
 
     
     #Creates level from file
-    nivel_actual=Nivel('level0.py')
 
 
     
@@ -208,7 +272,7 @@ def main():
         #clear sprites
         
         
-        #update sprites
+        #update physics and AI
         nivel_actual.update(pygame.time.get_ticks())
 
         #redraw sprites

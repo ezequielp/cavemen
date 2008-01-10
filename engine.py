@@ -38,14 +38,14 @@ class State_Machine():
     def get_current_state(self):
         return self.__state
         
-class Physics_Machine(State_Machine):
-    def __init__(self, parent_actor, initial_position=[0,0], initial_velocity=[0,0]):
-        State_Machine.__init__(self, parent_actor)
-        self.position=array(initial_position)
-        self.velocity=array(initial_velocity)
-        self.set_state(Most_General_PS) #most generic state so far
+#class Physics_Machine(State_Machine):
+    #def __init__(self, parent_actor, initial_position=[0,0], initial_velocity=[0,0]):
+        #State_Machine.__init__(self, parent_actor)
+        #self.position=array(initial_position)
+        #self.velocity=array(initial_velocity)
+        #self.set_state(Most_General_PS) #most generic state so far
 
         
-    def update_state(self, current_time):
-        State_Machine.update_state(self, current_time)
+    #def update_state(self, current_time):
+        #State_Machine.update_state(self, current_time)
     

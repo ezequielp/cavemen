@@ -30,7 +30,7 @@ def load_sequence(file_name, total_images, load_mirror=True):
     return sequence
 
 class Basic_Actor(Sprite):
-    from engine import Physics_Machine
+#    from engine import Physics_Machine
     from engine import State_Machine
     __level=None
     
@@ -40,15 +40,16 @@ class Basic_Actor(Sprite):
         self.rect=pygame.Rect((0,0), (0,0))
         self.rect.center=starting_position
         self.crect=self.rect
-        self.movement_state=Basic_Actor.Physics_Machine(self, starting_position)
+        #self.movement_state=Basic_Actor.Physics_Machine(self, starting_position)
 
         
-    def reset_PM(self):
-        self.standing_on=None
-        self.movement_state=Basic_Actor.Physics_Machine(self, self.rect.center)
+    #def reset_PM(self):
+        #self.standing_on=None
+        #self.movement_state=Basic_Actor.Physics_Machine(self, self.rect.center)
         
     def set_position(self, coordinates):
         self.rect.center=[int(rect[0]), int(rect[1])]
+        
         self.crect.center=self.rect.center
 
     def seen(self, object):
@@ -58,7 +59,7 @@ class Basic_Actor(Sprite):
             
     def update(self, current_time):
         Sprite.update(self)
-        self.movement_state.update_state(current_time)
+        #self.movement_state.update_state(current_time)
         
     def set_level(level):
         if Basic_Actor.__level is None:
