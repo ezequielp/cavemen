@@ -1,0 +1,19 @@
+#summary Some abstract representations of the game
+
+= Introduction =
+
+Here we present a few ideas about the abstract representation of some of the features of the game. 
+
+= Behaviors and Graphs =
+The state of and actor in the game can be represented as a two element vector.
+<math>S=\left(behavior, variables\right)</math>
+The first element, _behavior_, is a flag that indicates the behavioral state of the actor (wandering, fleeing, pursuing,...). each of this behaviors has dependencies on internal variables that changes the way the behavior is represented in the agent, for example, the wandering the speed of the wandering state could depend on the value of a variable "fatigue". But if the actor has drained all its energy (that means fatigue at its maximum value) then the behavior should switch to "sleep" or an equivalent. A way of expressing this could be
+<math>S=\left(wandering(fatigue), exhausted\right)</math>
+The variable exhausted takes values 0 or 1.
+
+As one can forecast, the dimension of the State can be huge. So we are interesting in some projections. There are two projections that call owr attention:
+# State-behavior -> SB=(behavior)
+# State-varible -> SV=(variables)
+
+If we have many possible behaviors there should be a transition matrix between them. That means some matrix expressing how this behaviors are connected and the weights of these connections. The weights, for instance, could be represented by the probability of going from behavior A to behavior B given the set of variables.
+<math> W,,BA,,=H(A,B | SV)</math>
