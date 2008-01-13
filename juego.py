@@ -87,7 +87,7 @@ class Nivel():
         
     def populate_from_file(self, file, timer):
         
-        config= eval(open(file).read())
+        config= eval(open(file, 'U').read())
         self.sanity_check(config)
         
         floors = dict()
