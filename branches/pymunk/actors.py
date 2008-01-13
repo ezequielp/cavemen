@@ -1,8 +1,9 @@
 from os import path
 import random
 
+from pymunk import vec2d
 import pygame
-from pygame.sprite import Sprite
+from base_sprite import Base_Sprite as Sprite
 
 from pygame.locals import *
 
@@ -32,6 +33,7 @@ def load_sequence(file_name, total_images, load_mirror=True):
 class Basic_Actor(Sprite):
 #    from engine import Physics_Machine
     from engine import State_Machine
+    
     __level=None
     
     def __init__(self, starting_position):
@@ -84,7 +86,9 @@ class Caveman(Basic_Actor):
     
     def __init__(self, initial_position, AI):
         Basic_Actor.__init__(self, initial_position)
+        from states import Wandering
 
+        
         if Caveman.image is None:
             Caveman._images=[[pygame.transform.scale(x, (x.get_width()/2, x.get_height()/2)) for x in y] for y in load_sequence("CavemanAnim.png", 4)]
             
@@ -105,9 +109,9 @@ class Caveman(Basic_Actor):
         self.displacement=0
         
         self.steering_acceleration=[0,0]
-        self.max_steering=random.gauss(0.002, 0.0002)
+        self.max_steering=random.gauss(500,30)
         
-        self.state=Basic_Actor.State_Machine(self)
+        self.state=Basic_Actor.State_Machine(self, Wandering)
         self.standing_on=None
         #self.state.set_state(Wandering)
 
@@ -127,10 +131,11 @@ class Caveman(Basic_Actor):
     
     def set_new_floor(self, parent, coordinates):
         self.rect.center=coordinates
+        self.body.set_position(vec2d(coordinates[0], 600-coordinates[1]))
         if hasattr(self, 'crect'):
             self.crect.center=self.rect.center
         self.displacement=0
-        self.reset_PM()
+        #self.reset_PM()
                        
     def get_position(self):
         return self.rect.center

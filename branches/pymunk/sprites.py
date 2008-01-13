@@ -1,4 +1,5 @@
 import pygame
+from base_sprite import Base_Sprite as Sprite
 from math import tanh
 import random
 
@@ -121,13 +122,15 @@ random.seed(100)
                 #self.kill()
             #self.prev_time+=200
 
-class Floor(pygame.sprite.Sprite):
+class Floor(Sprite):
     image=None
     _images=[]
     total_images=8
     def __init__(self, initial_position, ancho=2):
         pygame.sprite.Sprite.__init__(self)
         assert ancho>=2, 'Width too small'
+        
+
         
         Floor._images=load_sequence("floor.png", total_images=self.total_images, load_mirror=False)[0]
         self.image=pygame.Surface((Floor._images[0].get_width()*ancho,Floor._images[0].get_height())).convert()
@@ -155,7 +158,7 @@ class Floor(pygame.sprite.Sprite):
        
 
     def update(self, current_time):
-        pygame.sprite.Sprite.update(self)
+        Sprite.update(self)
 
 
     def attach_gate(self, gate, position):

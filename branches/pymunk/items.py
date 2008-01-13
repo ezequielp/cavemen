@@ -1,4 +1,4 @@
-from pygame.sprite import Sprite
+from base_sprite import Base_Sprite as Sprite
 from pygame.transform import scale
 from pygame import Rect
 import pygame
@@ -13,7 +13,9 @@ class Callable:
         
 class Item(Sprite):
     name="generic"
-                
+    def update(self, current_time):
+        Sprite.update(self)
+        
     def set_position(self, position):
         self.rect.midbottom=position
         if hasattr(self, 'crect'): self.crect=self.rect
@@ -77,5 +79,7 @@ class Cliff(Item):
         self.image=pygame.Surface([10,10])
         self.parent=parent
         self.rect=pygame.Rect([0,0],self.image.get_size())
+        
+        
         
     
