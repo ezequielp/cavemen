@@ -219,7 +219,7 @@ def main():
     clock = pygame.time.Clock()
     
     #create level
-    nivel_actual=Nivel(pygame.time, 'level0.py') 
+    nivel_actual=Nivel(pygame.time, 'Level0.py') 
     
     background=nivel_actual.background
 
