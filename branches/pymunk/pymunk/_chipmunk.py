@@ -3,6 +3,9 @@ from ctypes import *
 ###
 from ctypes.util import find_library
 import vec2d
+
+import os
+print "Estas en", os.path.abspath('.')
 cpVect = vec2d.vec2d
 ###
 lib_path = find_library("ChipmunkPyEd")
@@ -18,7 +21,7 @@ else:
     chiplib = CDLL(lib_path) 
     
 _libraries = {}
-_libraries['Chipmunk.dll'] = CDLL('Chipmunk.dll')
+_libraries['Chipmunk.dll'] = chiplib
 STRING = c_char_p
 
 
