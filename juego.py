@@ -2,6 +2,7 @@ import random
 from pygame.locals import *
 import pygame
 import sprites
+import engine
 
 #from numpy import array, matrix
 
@@ -14,16 +15,16 @@ class Nivel():
     enteroAzar=random.randint
     import pymunk as pm
     from pymunk.vec2d import vec2d
-
+    from collision_handler import Collision_State_Handler
     #sync_list=[]
-    
+    coll_handlers=[]
     pm.init_pymunk()
     space = pm.Space()
     space.gravity = vec2d(0.0, -900.0)
     
 
     groups={'FLOORS':1, 'CAVEMEN':2}
-    def __init__(self, file=None):
+    def __init__(self,  timer, file=None):
         self.enemies=pygame.sprite.Group()
         self.friends=pygame.sprite.Group()
         self.floors=pygame.sprite.Group()
@@ -33,11 +34,11 @@ class Nivel():
         
         self.space.resize_static_hash()
         self.space.resize_active_hash()
-        
+        self.space.set_damping(0.4)
         self.background=pygame.Surface(SCREENRECT.size).convert()
         
         if file is not None:
-            self.populate_from_file(file)
+            self.populate_from_file(file, timer)
 
     def set_as_BG(self, item):
         self.background.blit(item.image, item.rect)
@@ -56,8 +57,10 @@ class Nivel():
         
         body = self.pm.Body(1e100, 1e100)
         shape= self.pm.Segment(body, vec2d(point_a[0], transform_Y(point_a[1])), vec2d(point_b[0], transform_Y(point_b[1])), width)
-        shape.friction=0.9
+        shape.friction=0
         shape.group=self.groups['FLOORS']
+        shape.collision_type = self.groups['FLOORS']
+        floor.set_id(shape.id)
         
         self.space.add_static_shape(shape)
 
@@ -72,14 +75,17 @@ class Nivel():
 
         shape=self.pm.Circle(body, radius, self.vec2d(0,0))
         shape.group=self.groups['CAVEMEN']
-
+        shape.collision_type = self.groups['CAVEMEN']
+        shape.friction=0
+        cm.set_id(shape.id)
+        
         self.space.add(shape)
         self.space.add(body)
         cm.body=body
 
         
         
-    def populate_from_file(self, file):
+    def populate_from_file(self, file, timer):
         
         config= eval(open(file).read())
         self.sanity_check(config)
@@ -87,7 +93,7 @@ class Nivel():
         floors = dict()
         for floor_id in config['Floors']:
             placement=list(config['Relative Placement'][floor_id])
-            placement[1]=600-placement[1]
+            placement[1]=self.transform_Y(placement[1])
             floors[floor_id]=sprites.Floor(placement, round(config['Floor Sizes'][floor_id]/32.0))
             self.embody_floor(floors[floor_id])
             self.set_as_BG(floors[floor_id])
@@ -109,7 +115,7 @@ class Nivel():
             self.floors.add(floor)
         
         for i in range(num_walkers):
-            caminante=sprites.Caveman([self.enteroAzar(50,700),600-config['Relative Placement']['A'][1]-10], True)
+            caminante=sprites.Caveman([self.enteroAzar(50,700),600-config['Relative Placement']['A'][1]-50], True)
             caminante.id=i
             self.enemies.add(caminante)
             self.embody_walker([caminante])
@@ -121,14 +127,23 @@ class Nivel():
         for floor_id in config['Initial Bodycount']:
             floors[floor_id].death_toll=config['Initial Bodycount'].get(floor_id, 0)
             
+            
+        #Register collision function to handle colisions with floor:
+        self.coll_handlers.append(self.Collision_State_Handler(self.space, self.groups['FLOORS'], self.groups['CAVEMEN'], timer).get_table())
+
+        engine.State_Machine.Base_State.set_collision_handlers()
+        
         self.all.add([x.items for x in self.floors])
         self.all.add(self.floors)
 
         self.all.add(self.friends)
         self.all.add(self.enemies)
         
+        self.visible.add([x.items for x in self.floors])
         self.visible.add(self.friends)
         self.visible.add(self.enemies)
+        
+        #self.Space.add_collisionpair_func(self.groups['CAVEMEN'], self.groups['FLOORS'], )
 
         
     def sanity_check(self, conf_module):
@@ -185,8 +200,9 @@ class Nivel():
             
     def update(self, current_time):
         self.all.update(current_time)
-        self.space.step(1.0/60)
+        self.space.step(1.0/60) #Modify to call the step function when the time has passed
         #ok... now sincronizes sprites with pymunk
+        
         for enemy in self.enemies:
             enemy.rect.center=[enemy.body.position[0], self.transform_Y(enemy.body.position[1])]
         
@@ -198,24 +214,15 @@ class Mouse(pygame.sprite.Sprite):
 def main():
     pygame.init()
     screen=pygame.display.set_mode(SCREENRECT.size)
-
-    nivel_actual=Nivel('level0.py')
+  
+    #keep track of time
+    clock = pygame.time.Clock()
+    
+    #create level
+    nivel_actual=Nivel(pygame.time, 'level0.py') 
     
     background=nivel_actual.background
-    
 
-    #enteroAzar=random.randint
-
-
-    
-    #for i in range(1000):
-        #brillo=enteroAzar(0,255)
-        #background.set_at((enteroAzar(0,800),enteroAzar(0,600)), (brillo,brillo,brillo) )
-
-    #debug_rect=pygame.Rect([570,210,65,52])
-    
-    #pygame.draw.rect(background, (255,255,255), debug_rect)
-    
     screen.blit(background, (0,0))
     
     pygame.display.update()
@@ -228,8 +235,8 @@ def main():
 
     
     
-    #keep track of time
-    clock = pygame.time.Clock()
+ 
+
     i=0
     #game loop
     while 1:
