@@ -5,7 +5,18 @@ from ctypes.util import find_library
 import vec2d
 cpVect = vec2d.vec2d
 ###
-
+lib_path = find_library("ChipmunkPyEd")
+if lib_path is None:
+    print "find_library could not find ChipmunkPyEd"
+    try:
+        print "Will try to load ChipmunkPyEd.dll"
+        chiplib = CDLL('ChipmunkPyEd.dll')
+    except:
+        print "Loading ChipmunkPyEd.dll failed, will try to load libChipmunkPyEd.so"
+        chiplib = CDLL('libChipmunkPyEd.so')
+else:
+    chiplib = CDLL(lib_path) 
+    
 _libraries = {}
 _libraries['Chipmunk.dll'] = CDLL('Chipmunk.dll')
 STRING = c_char_p
