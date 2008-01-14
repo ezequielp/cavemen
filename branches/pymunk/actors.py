@@ -35,6 +35,8 @@ class Basic_Actor(Sprite):
     from engine import State_Machine
     
     __level=None
+
+    flee_from=None
     
     def __init__(self, starting_position):
         Sprite.__init__(self)
@@ -97,9 +99,9 @@ class Caveman(Basic_Actor):
         self.rect.size=self.image.get_size()
         self.crect=self.rect
 
-        self.next_image=self.current_image=random.randint(0,3)
+        #self.next_image=self.current_image=random.randint(0,3)
         
-        self.orientation=random.randint(0,1)*2-1
+        #self.orientation=random.randint(0,1)*2-1
 
         self.image=Caveman._images[0][0]
         self.current_image=0
@@ -108,8 +110,8 @@ class Caveman(Basic_Actor):
         self.next_image_update=self.update_interval
         self.displacement=0
         
-        self.steering_acceleration=[0,0]
-        self.max_steering=random.gauss(500,30)
+        #self.steering_acceleration=[0,0]
+        self.max_steering=random.gauss(1000,30)
         
         self.state=Basic_Actor.State_Machine(self, Wandering)
         self.standing_on=None
@@ -131,7 +133,7 @@ class Caveman(Basic_Actor):
     
     def set_new_floor(self, parent, coordinates):
         self.rect.center=coordinates
-        self.body.set_position(vec2d(coordinates[0], 600-coordinates[1]))
+        self.body.set_position(vec2d(coordinates[0], coordinates[1]))
         if hasattr(self, 'crect'):
             self.crect.center=self.rect.center
         self.displacement=0
@@ -143,21 +145,25 @@ class Caveman(Basic_Actor):
 
 
     def update(self, current_time):
+        #updates actor
         Basic_Actor.update(self,current_time)
-        
+        #updates state machine
         self.state.update_state(current_time)
 
-        while self.displacement>=self.displacement_table[self.current_image]:
-            self.displacement-=self.displacement_table[self.current_image]
-            self.next_image+=1
-            if self.next_image==4:
-                self.next_image=0
+        
+        #while self.displacement>=self.displacement_table[self.current_image]:
+            #self.displacement-=self.displacement_table[self.current_image]
+            #self.next_image+=1
+            #if self.next_image==4:
+                #self.next_image=0
             
-        if not self.next_image == self.current_image:
-            self.image=Caveman._images[(self.orientation+1)/2][self.current_image]
-            self.current_image=self.next_image
+        #if not self.next_image == self.current_image:
+            #self.image=Caveman._images[(self.orientation+1)/2][self.current_image]
+            #self.current_image=self.next_image
 
-                
+    def set_image(self, orientacion, image_num):
+        self.image=Caveman._images[(orientacion+1)/2][image_num]
+        
     def kill(self):
         if hasattr(self, 'standing_on') and self.standing_on is not None:
             self.standing_on.death_toll+=1

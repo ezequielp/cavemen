@@ -20,23 +20,28 @@ class Nivel():
     coll_handlers=[]
     pm.init_pymunk()
     space = pm.Space()
-    space.gravity = vec2d(0.0, -900.0)
+    space.gravity = vec2d(0.0, 900.0)
+    physics_step=40 #in milliseconds
     
 
     groups={'FLOORS':1, 'CAVEMEN':2}
     def __init__(self,  timer, file=None):
+        #create sprite goups
         self.enemies=pygame.sprite.Group()
         self.friends=pygame.sprite.Group()
         self.floors=pygame.sprite.Group()
         self.all=pygame.sprite.OrderedUpdates()
         self.visible=pygame.sprite.OrderedUpdates()
+        #connects actors with current level
         sprites.Basic_Actor.set_level(self)
         
+        #setups phyisics engine
         self.space.resize_static_hash()
         self.space.resize_active_hash()
-        self.space.set_damping(0.4)
+        self.space.set_damping(0.2)
         self.background=pygame.Surface(SCREENRECT.size).convert()
         
+        self.last_time=0
         if file is not None:
             self.populate_from_file(file, timer)
 
@@ -44,7 +49,7 @@ class Nivel():
         self.background.blit(item.image, item.rect)
         
     def transform_Y(self, Ycoord):
-        return SCREENRECT.size[1]-Ycoord
+        return Ycoord
     
     def embody_floor(self, floor):
         vec2d=self.vec2d
@@ -93,7 +98,7 @@ class Nivel():
         floors = dict()
         for floor_id in config['Floors']:
             placement=list(config['Relative Placement'][floor_id])
-            placement[1]=self.transform_Y(placement[1])
+            placement[1]=600-self.transform_Y(placement[1])
             floors[floor_id]=sprites.Floor(placement, round(config['Floor Sizes'][floor_id]/32.0))
             self.embody_floor(floors[floor_id])
             self.set_as_BG(floors[floor_id])
@@ -200,16 +205,19 @@ class Nivel():
             
     def update(self, current_time):
         self.all.update(current_time)
-        self.space.step(1.0/60) #Modify to call the step function when the time has passed
-        #ok... now sincronizes sprites with pymunk
-        
-        for enemy in self.enemies:
-            enemy.rect.center=[enemy.body.position[0], self.transform_Y(enemy.body.position[1])]
-        
+        #print current_time, self.last_time+self.physics_step
+        if current_time>self.last_time+self.physics_step:
+            self.space.step(self.physics_step/1000.0) 
+            self.last_time=current_time
+            #ok... now sincronizes sprites with pymunk
+            for enemy in self.enemies:
+                enemy.rect.center=[enemy.body.position[0], enemy.body.position[1]]
+            
 class Mouse(pygame.sprite.Sprite):
-    def __init__(self, position):
+    def __init__(self, position, radius):
         pygame.sprite.Sprite.__init__(self)
-        self.rect=Rect([position[0], position[1], 10, 10])
+        self.rect=Rect(0,0,radius,radius)
+        self.rect.center=[position[0], position[1]]
         
 def main():
     pygame.init()
@@ -270,11 +278,15 @@ def main():
                 elif event.key == K_RIGHT:
                     personaje.acelerar(0)
             elif event.type == MOUSEBUTTONUP:
-                print 'Click at '+str(event.pos)
-                caught=pygame.sprite.spritecollide(Mouse(event.pos),nivel_actual.enemies, False)
+                #print 'Click at '+str(event.pos)
+                caught=pygame.sprite.spritecollide(Mouse(event.pos, 200),nivel_actual.enemies, False)
                 if len(caught)>0:
-                    caught[0].kill()
-                    print "One dead"
+                    for sprite in caught:
+                        sprite.flee_from=event.pos
+                    caught=pygame.sprite.spritecollide(Mouse(event.pos, 10),nivel_actual.enemies, False)
+                    if len(caught)>0:
+                        caught[0].kill()
+
                 
         #clear sprites
         
