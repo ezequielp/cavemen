@@ -5,7 +5,6 @@ from ctypes.util import find_library
 import vec2d
 
 import os
-print "Estas en", os.path.abspath('.')
 cpVect = vec2d.vec2d
 ###
 lib_path = find_library("ChipmunkPyEd")

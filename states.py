@@ -4,13 +4,47 @@ from engine import State_Machine
 from pymunk import vec2d
 
 Base_State=State_Machine.Base_State
+
+def seek1D(current_pos, target_pos, max_force):
+        dist=target_pos-current_pos
+        #force=40*dist
         
+        #if max_force*max_force>force*force: 
+                #return force*vec2d(1,0)
+        #else: 
+        if dist>0:
+                return max_force*vec2d(1,0)
+        elif dist<0:
+                return -max_force*vec2d(1,0)
+        return vec2d(0,0)
+
+def evade(current_pos, target_pos, max_force):
+        x_dist=target_pos[0]-current_pos[0]
+        #y_dist=target_pos[1]-current_pos[1]
+        #dist=(x_dist**2+y_dist**2)**0.5
+        
+        if x_dist==0:
+                x_dist=1
+        if abs(x_dist)>100:
+                return vec2d(0,0)
+        else:
+                return -4*vec2d(max_force,0)*x_dist/abs(x_dist)
+        #if dist==0:
+                #dist=1
+        
+        #force=-400.0*vec2d(x_dist,0)/dist
+        
+        #if 400.0*x_dist/dist>max_force*10:
+                #force=10*max_force*vec2d(1,0)*x_dist/abs(x_dist)
+                
+        return force
+                                        
 class Wandering(Base_State):
         def __init__(self, parent_machine):
                 Base_State.__init__(self, parent_machine)
                                
                 self.position=self.get_parent().rect
-                self.time_step=20
+                self.time_step=50
                 self.last_time_on_floor=0
                 self.target=None
         
@@ -50,10 +84,10 @@ class Wandering(Base_State):
                 
                 target_pos=self.target.get_position()[0]
                 actor_pos=self.actor.get_position()[0]
-                dist=(target_pos-actor_pos)
                 parent.body.reset_forces()
-                force=100*dist
+                dist=target_pos-actor_pos
                 #print dist
+                
                 if dist*dist<25:
                         target_state=self.target.get_trigger_state()
                         if  target_state is not None:
@@ -61,15 +95,22 @@ class Wandering(Base_State):
                         self.target=None
                         return
                 else:
-                        if self.actor.max_steering*self.actor.max_steering>force*force: 
-                                parent.body.apply_force(force*vec2d(1,0), vec2d(0,0))
-                        else: 
-                                if dist>0:
-                                        parent.body.apply_force(self.actor.max_steering*vec2d(1,0), vec2d(0,0))
-                                elif dist<0:
-                                        parent.body.apply_force(-self.actor.max_steering*vec2d(1,0), vec2d(0,0))
-                                else: 
-                                        parent.body.set_velocity(vec2d(0,0))
+                        total_force=seek1D(actor_pos, target_pos, self.actor.max_steering)
+                        #total_force=vec2d(0,0)
+
+                if not parent.flee_from is None:
+                        total_force+=evade(self.actor.get_position(), parent.flee_from, self.actor.max_steering)
+                        if abs(parent.flee_from[0]-actor_pos)>100:
+                                parent.fle_from=None
+                                
+                parent.body.apply_force(total_force, vec2d(0,0))
+                
+                velocity=parent.body.get_velocity()[0]
+                if abs(velocity)>0.01:
+                        #print velocity/abs(velocity), parent.current_image
+
+                        parent.orientation=int(velocity/abs(velocity))
+                        parent.set_image(parent.orientation, parent.current_image)
 
                                 
         def exit(self):
