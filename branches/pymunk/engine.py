@@ -11,46 +11,21 @@ class Callable:
 class State_Machine():
     __state= None
     __parent_actor=None
-    import actors
+    import sprites as actors
     from pymunk import vec2d
-
-
-        
+    level=None
     
-    class Base_State():
-        #from pymunk import Body
-        #from pymunk import vec2d
-        #apply_force=Body.apply_force
-        level=None
-        def __init__(self, parent_machine):
-                #raise AttributeError, "This class shouldn't be instantiated, use a children"
-                self.__parent=parent_machine.get_actor()
-                self.__parent_SM=parent_machine
-                if not State_Machine.Base_State.level:
-                    State_Machine.Base_State.level=self.__parent.get_level()
-                                
-        def get_parent(self):
-                return self.__parent
-        
-        def set_collision_handlers():
-            State_Machine.Base_State.floor_collisions=State_Machine.Base_State.level.coll_handlers[0]
-            
-        set_collision_handlers=Callable(set_collision_handlers)
-                
-        def get_parent_SM(self):
-                return self.__parent_SM
-                
-        def enter(self):
-                pass
-        
-        def exit(self):
-                pass
-            
     def __init__(self, parent_actor, Initial_State):
         assert isinstance(parent_actor, State_Machine.actors.Basic_Actor), str(parent_actor)+" is not an actor."
         self.__parent_actor=parent_actor
         self.set_state(Initial_State) #The machine starts in the initial state 
+        if not State_Machine.level:
+            State_Machine.level=self.__parent_actor.get_level()
 
+    def set_collision_handlers():
+        State_Machine.floor_collisions=State_Machine.level.coll_handlers[0]
+    
+    set_collision_handlers=Callable(set_collision_handlers)
     
     def set_state(self, new_state):
         if self.__state:

@@ -1,10 +1,202 @@
 import pygame
 from base_sprite import Base_Sprite as Sprite
 from math import tanh
+from os import path
+import pymunk as pm
+from pymunk import vec2d
 import random
+from groups import definitions as groups
 
-from actors import *
 from items import *
+
+
+class Callable:
+    def __init__(self, anycallable):
+        self.__call__ = anycallable
+  
+
+def load_sequence(file_name, total_images, load_mirror=True):
+    '''Loads an image an splits it in frames. If load_mirror is True, the function will return a list of two lists, the first with the sequence of images and the second with the images flipped along the y axis. If load_mirror is False, the function will return the list of images
+    Should find a better way, maybe loading to an image pool at startup'''
+    sequence=[]
+    all=pygame.image.load(path.join("media",file_name)).convert()
+    all.set_colorkey(all.get_at((0,0)), RLEACCEL)
+    
+    image_height=all.get_height()
+    image_width=all.get_width()/total_images
+    
+
+    sequence.append([all.subsurface((x,0,image_width,image_height))for x in range(0,image_width*total_images,image_width)])
+        #Creates characters looking to the right
+    if load_mirror:
+        sequence.append([pygame.transform.flip(sequence[0][x],True,False) for x in range(total_images)])
+
+    return sequence
+
+class Basic_Actor(Sprite):
+#    from engine import Physics_Machine
+    from engine import State_Machine
+    
+    __level=None
+
+    flee_from=None
+    
+    def __init__(self, starting_position):
+        Sprite.__init__(self)
+        
+        self.rect=pygame.Rect((0,0), (0,0))
+        self.rect.center=starting_position
+        self.crect=self.rect
+        #self.movement_state=Basic_Actor.Physics_Machine(self, starting_position)
+
+        
+    #def reset_PM(self):
+        #self.standing_on=None
+        #self.movement_state=Basic_Actor.Physics_Machine(self, self.rect.center)
+        
+    def set_position(self, coordinates):
+        self.rect.center=[int(rect[0]), int(rect[1])]
+        
+        self.crect.center=self.rect.center
+
+    def seen(self, object):
+        '''Comunicates to the sprite, that an object was seen'''
+        if not object in self.object_queue:
+            self.object_queue.append(object)
+            
+    def update(self, current_time):
+        Sprite.update(self)
+        #self.movement_state.update_state(current_time)
+        
+    def set_level(level):
+        if Basic_Actor.__level is None:
+            Basic_Actor.__level=level
+        else:
+            raise BaseException, "level already defined!..."
+    
+    set_level=Callable(set_level) 
+    def get_level(self):
+        return Basic_Actor.__level
+    
+    def visible(self):
+        Basic_Actor.__level.set_visible(self)
+        
+    def invisible(self):
+        Basic_Actor.__level.set_invisible(self)
+
+class Caveman(Basic_Actor):
+    image=None
+    _images=[]
+    memory=3000
+    
+    def __init__(self, initial_position, AI):
+        Basic_Actor.__init__(self, initial_position)
+        from states import Wandering
+
+        
+        if Caveman.image is None:
+            Caveman._images=[[pygame.transform.scale(x, (x.get_width()/2, x.get_height()/2)) for x in y] for y in load_sequence("CavemanAnim.png", 4)]
+            
+            Caveman.displacement_table=[3, 5, 5, 5]
+        self.image=Caveman._images[0][0]
+        self.rect.size=self.image.get_size()
+        self.crect=self.rect
+
+        #self.next_image=self.current_image=random.randint(0,3)
+        
+        #self.orientation=random.randint(0,1)*2-1
+
+        self.image=Caveman._images[0][0]
+        self.current_image=0
+        self.update_interval=200
+        
+        self.next_image_update=self.update_interval
+        self.displacement=0
+        
+        #self.steering_acceleration=[0,0]
+        self.max_steering=random.gauss(1000,30)
+        
+        self.state=Basic_Actor.State_Machine(self, Wandering)
+        self.standing_on=None
+        #self.state.set_state(Wandering)
+
+    def set_position(self, coordinates):
+        if not self.standing_on is None:
+            displacement=coordinates[0]-self.rect.center[0]
+            self.displacement+=self.orientation*displacement
+            if displacement>0:
+                self.orientation=1
+                self.rect.center=[int(coordinates[0]), int(coordinates[1])]
+            else:
+                self.orientation=-1
+                self.rect.center=[int(coordinates[0])+1, int(coordinates[1])]
+        else:
+            self.rect.center=[int(coordinates[0]), int(coordinates[1])]
+        self.crect.center=self.rect.center
+    
+    def set_new_floor(self, parent, coordinates):
+        self.rect.center=coordinates
+        self.body.set_position(vec2d(coordinates[0], coordinates[1]))
+        if hasattr(self, 'crect'):
+            self.crect.center=self.rect.center
+        self.displacement=0
+        #self.reset_PM()
+                       
+    def get_position(self):
+        return self.rect.center
+
+
+
+    def update(self, current_time):
+        #updates actor
+        Basic_Actor.update(self,current_time)
+        #updates state machine
+        self.state.update_state(current_time)
+
+        
+        #while self.displacement>=self.displacement_table[self.current_image]:
+            #self.displacement-=self.displacement_table[self.current_image]
+            #self.next_image+=1
+            #if self.next_image==4:
+                #self.next_image=0
+            
+        #if not self.next_image == self.current_image:
+            #self.image=Caveman._images[(self.orientation+1)/2][self.current_image]
+            #self.current_image=self.next_image
+
+    def set_image(self, orientacion, image_num):
+        self.image=Caveman._images[(orientacion+1)/2][image_num]
+        
+    def kill(self):
+        #if hasattr(self, 'current_floor') and self.standing_on is not None:
+        #    self.standing_on.death_toll+=1
+        ghost=Ghost(self)
+        skeleton=Skeleton(self)
+        self.nivel_actual.all.add(ghost)
+        self.nivel_actual.all.add(skeleton)
+        ghost.set_visible()
+        skeleton.set_visible()
+        Sprite.kill(self)
+        
+    def embody(self, space):
+        cm=self
+        rect=cm.rect
+        radius=rect.width/2.0
+        center=rect.center
+        
+        body=pm.Body(10,1e100)
+        body.position=center[0], center[1]
+
+        shape=pm.Circle(body, radius, vec2d(0,0))
+        shape.group=groups['CAVEMEN']
+        shape.collision_type = groups['CAVEMEN']
+        shape.friction=0
+        cm.set_id(shape.id)
+        
+        space.add(shape)
+        space.add(body)
+        self.body=body
+
 
 SCREENRECT=Rect(0,0,800,600)
 
@@ -97,20 +289,21 @@ random.seed(100)
     #def acelerar(self, direccion):
         #self.direccion=direccion
 
-#class Ghost(Basic_Actor):
-    #__images={}
-    #def __init__(self, original_body):
-        #Basic_Actor.__init__(self)
-        #if not original_body.__class__ in Ghost.__images:
-            #Ghost.__images[original_body.__class__]=original_body.image.copy()
+class Ghost():
+    __images={}
+    def __init__(self, original_body):
+        Basic_Actor.__init__(self)
+        if not original_body.__class__ in Ghost.__images:
+            Ghost.__images[original_body.__class__]=original_body.image.copy()
 
             
-        #self.image=Ghost.__images[original_body.__class__].copy()
-        #self.image.set_alpha(255)
-        #self.rect=original_body.rect
-        ##self.crect=pygame.Rect([0,0,0,0])
-        #self.posicion=numpy.array(original_body.rect.center)
-        #self.velocidad=numpy.array([0,-0.8])
+        self.image=Ghost.__images[original_body.__class__].copy()
+        self.image.set_alpha(255)
+        self.rect=original_body.rect
+        #self.crect=pygame.Rect([0,0,0,0])
+        self.posicion=numpy.array(original_body.rect.center)
+        self.velocidad=numpy.array([0,-0.8])
+        
         #self.aceleracion=-Basic_Actor.GRAVEDAD
         #self.prev_time=0
         
