@@ -23,8 +23,8 @@ class Nivel():
     space.gravity = vec2d(0.0, 900.0)
     physics_step=40 #in milliseconds
     
-
-    groups={'FLOORS':1, 'CAVEMEN':2}
+    from groups import definitions as groups
+    
     def __init__(self,  timer, file=None):
         #create sprite goups
         self.enemies=pygame.sprite.Group()
@@ -69,24 +69,6 @@ class Nivel():
         
         self.space.add_static_shape(shape)
 
-    def embody_walker(self, cm):
-        cm=cm[0]
-        rect=cm.rect
-        radius=rect.width/2.0
-        center=rect.center
-        
-        body=self.pm.Body(10,1e100)
-        body.position=center[0], self.transform_Y(center[1])
-
-        shape=self.pm.Circle(body, radius, self.vec2d(0,0))
-        shape.group=self.groups['CAVEMEN']
-        shape.collision_type = self.groups['CAVEMEN']
-        shape.friction=0
-        cm.set_id(shape.id)
-        
-        self.space.add(shape)
-        self.space.add(body)
-        cm.body=body
 
         
         
@@ -107,12 +89,20 @@ class Nivel():
         for gate1_id in config['Gate Graph']:
             gate2_id=config['Gate Graph'][gate1_id][0]
             gates[gate1_id], gates[gate2_id] = sprites.Gate.create_connected()
-            self.set_as_BG(gates[gate1_id])
-            self.set_as_BG(gates[gate2_id])
-                
+        
+        shelters=dict()
+        for shelter_id in config['Shelters']:
+            shelters[shelter_id]=sprites.Shelter()
+            
         for floor_id in config['Hierarchy']:
-            for gate_id in config['Hierarchy'][floor_id]:
-                floors[floor_id].attach_gate(gates[gate_id], list(config['Relative Placement'][gate_id]))
+            for item_id in config['Hierarchy'][floor_id]:
+                if item_id in gates.keys():
+                    floors[floor_id].attach_gate(gates[item_id], list(config['Relative Placement'][item_id]))
+                    self.set_as_BG(gates[item_id])
+                elif item_id in shelters.keys():
+                    floors[floor_id].attach_gate(shelters[item_id], list(config['Relative Placement'][item_id]))
+                    self.set_as_BG(shelters[item_id])
+
         
         num_walkers=config['Options'].get('Walkers', 50)
         
@@ -123,7 +113,7 @@ class Nivel():
             caminante=sprites.Caveman([self.enteroAzar(50,700),600-config['Relative Placement']['A'][1]-50], True)
             caminante.id=i
             self.enemies.add(caminante)
-            self.embody_walker([caminante])
+            caminante.embody(self.space)
 
     
         #personaje=sprites.Volador([400,500], False)
@@ -136,7 +126,7 @@ class Nivel():
         #Register collision function to handle colisions with floor:
         self.coll_handlers.append(self.Collision_State_Handler(self.space, self.groups['FLOORS'], self.groups['CAVEMEN'], timer).get_table())
 
-        engine.State_Machine.Base_State.set_collision_handlers()
+        engine.State_Machine.set_collision_handlers()
         
         self.all.add([x.items for x in self.floors])
         self.all.add(self.floors)
@@ -144,7 +134,7 @@ class Nivel():
         self.all.add(self.friends)
         self.all.add(self.enemies)
         
-        self.visible.add([x.items for x in self.floors])
+        #self.visible.add([x.items for x in self.floors])
         self.visible.add(self.friends)
         self.visible.add(self.enemies)
         
@@ -209,6 +199,7 @@ class Nivel():
         if current_time>self.last_time+self.physics_step:
             self.space.step(self.physics_step/1000.0) 
             self.last_time=current_time
+            
             #ok... now sincronizes sprites with pymunk
             for enemy in self.enemies:
                 enemy.rect.center=[enemy.body.position[0], enemy.body.position[1]]
@@ -235,29 +226,9 @@ def main():
     
     pygame.display.update()
 
-    
-    #Creates level from file
-
-
-    
-
-    
-    
- 
-
     i=0
     #game loop
     while 1:
-        #debug
-        i+=1
-#        if i==200:
- #           assert False
-  #      for sprite in nivel_actual.enemigos:
-   #         if sprite.crect.colliderect(debug_rect):
-    #            bad_sprite=sprite
-     #           print 'Bad sprite found '+str(sprite.id)+' after '+str(i)+' iterations'
-      #          assert False, "Error"
-        #get input
         for event in pygame.event.get():
             if event.type == QUIT \
                or (event.type == KEYDOWN and \
