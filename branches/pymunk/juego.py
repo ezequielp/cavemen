@@ -35,7 +35,8 @@ class Nivel():
         #connects actors with current level
         sprites.Basic_Actor.set_level(self)
         
-        #setups phyisics engine
+        
+        #setups physics engine
         self.space.resize_static_hash()
         self.space.resize_active_hash()
         self.space.set_damping(0.2)
@@ -113,7 +114,7 @@ class Nivel():
             caminante=sprites.Caveman([self.enteroAzar(50,700),600-config['Relative Placement']['A'][1]-50], True)
             caminante.id=i
             self.enemies.add(caminante)
-            caminante.embody(self.space)
+            caminante.embody()
 
     
         #personaje=sprites.Volador([400,500], False)
@@ -125,8 +126,10 @@ class Nivel():
             
         #Register collision function to handle colisions with floor:
         self.coll_handlers.append(self.Collision_State_Handler(self.space, self.groups['FLOORS'], self.groups['CAVEMEN'], timer).get_table())
+        
 
         engine.State_Machine.set_collision_handlers()
+        #self.space.add_collisionpair_func(self.groups['FLOORS'], self.groups['INCORPOREAL'], None)
         
         self.all.add([x.items for x in self.floors])
         self.all.add(self.floors)
@@ -201,8 +204,8 @@ class Nivel():
             self.last_time=current_time
             
             #ok... now sincronizes sprites with pymunk
-            for enemy in self.enemies:
-                enemy.rect.center=[enemy.body.position[0], enemy.body.position[1]]
+            for sprite in self.visible:
+                sprite.rect.center=[sprite.body.position[0], sprite.body.position[1]]
             
 class Mouse(pygame.sprite.Sprite):
     def __init__(self, position, radius):

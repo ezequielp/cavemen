@@ -1,6 +1,5 @@
 from numpy import array, matrix
-#from physics_states import PS_freefall as Most_General_PS
-#from states import Wandering as Initial_State
+
 import random 
 
 class Callable:
