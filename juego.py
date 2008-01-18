@@ -30,6 +30,8 @@ class Nivel():
         self.enemies=pygame.sprite.Group()
         self.friends=pygame.sprite.Group()
         self.floors=pygame.sprite.Group()
+        self.with_body=pygame.sprite.Group()
+        
         self.all=pygame.sprite.OrderedUpdates()
         self.visible=pygame.sprite.OrderedUpdates()
         #connects actors with current level
@@ -69,7 +71,7 @@ class Nivel():
         floor.set_id(shape.id)
         
         self.space.add_static_shape(shape)
-
+        #self.with_body.add(floor)
 
         
         
@@ -203,8 +205,8 @@ class Nivel():
             self.space.step(self.physics_step/1000.0) 
             self.last_time=current_time
             
-            #ok... now sincronizes sprites with pymunk
-            for sprite in self.visible:
+            #ok... now sincronizes sprites with pymunk. Should use a new group for sprites with body
+            for sprite in self.with_body:
                 sprite.rect.center=[sprite.body.position[0], sprite.body.position[1]]
             
 class Mouse(pygame.sprite.Sprite):
@@ -223,9 +225,9 @@ def main():
     #create level
     nivel_actual=Nivel(pygame.time, 'Level0.py') 
     
-    background=nivel_actual.background
+    #background=nivel_actual.background
 
-    screen.blit(background, (0,0))
+    screen.blit(nivel_actual.background, (0,0))
     
     pygame.display.update()
 
@@ -273,7 +275,7 @@ def main():
         pygame.display.update(rectlist)
 
         clock.tick(50)
-        nivel_actual.visible.clear(screen, background)
+        nivel_actual.visible.clear(screen, nivel_actual.background)
         pygame.display.set_caption("fps: " + str(clock.get_fps()))
 
         
