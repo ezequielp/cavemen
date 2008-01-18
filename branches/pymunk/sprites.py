@@ -173,11 +173,11 @@ class Caveman(Basic_Actor):
         #if hasattr(self, 'current_floor') and self.standing_on is not None:
         #    self.standing_on.death_toll+=1
         ghost=Ghost(self)
-        #skeleton=Skeleton(self)
+        skeleton=Skeleton(self)
         self.level.all.add(ghost)
-        #self.nivel_actual.all.add(skeleton)
+        self.level.all.add(skeleton)
         ghost.visible()
-        #skeleton.set_visible()
+        skeleton.visible()
         Sprite.kill(self)
         
     def embody(self):
@@ -199,6 +199,7 @@ class Caveman(Basic_Actor):
         space.add(shape)
         space.add(body)
         self.body=body
+        Basic_Actor.level.with_body.add(self)
 
 
 SCREENRECT=Rect(0,0,800,600)
@@ -291,7 +292,68 @@ random.seed(100)
         #self.estado="subiendo ala"
     #def acelerar(self, direccion):
         #self.direccion=direccion
+class Skeleton(Basic_Actor):
+    _image=None
+    def __init__(self, original_body):
+        Basic_Actor.__init__(self,original_body.rect)
+        if Skeleton._image is None:
+            Skeleton._image=load_sequence("Skeleton.png", 1, load_mirror=False)[0]
 
+        self.image=Skeleton._image[0]
+        self.rect=self.image.get_rect()
+        self.rect.center=original_body.rect.center
+        
+        self.embody()
+        self.body.set_velocity(vec2d(0,0))
+        
+    def embody(self):
+        space=Basic_Actor.level.space
+        actor=self
+        center=actor.rect.center
+        radius=actor.rect.width/2.0
+        
+        body=pm.Body(10,1e100)
+        body.position=center[0], center[1]
+        
+        shape=pm.Circle(body, radius, vec2d(0,0))
+        #shape.set_layers(0)
+        shape.group=groups['CAVEMEN']
+        shape.collision_type = groups['CAVEMEN']
+        shape.friction=0.9
+        actor.set_id(shape.id)
+        
+        space.add(shape)
+        space.add(body)
+        actor.body=body 
+        actor.shape=shape
+        Basic_Actor.level.with_body.add(self)
+        
+    def update(self, current_time):
+        if hasattr(self,'current_floor'):
+            if self.rect.center[1]<self.current_floor.rect.center[1]:
+                self.rect.center=[self.rect.center[0], self.rect.center[1]+1]
+                return
+            else:
+                self.current_floor.death_toll-=1
+                #self.level.set_as_BG(self)
+                
+                Basic_Actor.level.all.remove(self)
+                #Basic_Actor.level.visible.remove(self)
+                
+        elif hasattr(self, 'body') and (self.body.get_velocity()-vec2d(0,0)).get_length()<0.01:
+            floor_collisions=Basic_Actor.State_Machine.floor_collisions
+            collision_data=floor_collisions.pop(self.id, None)
+            if collision_data is None: return
+            self.current_floor=self.get_sprite(collision_data[1])
+            space=Basic_Actor.level.space
+            space.remove_shape(self.shape)
+            space.remove_body(self.body)
+            del self.body
+            Basic_Actor.level.with_body.remove(self)
+            self.current_floor.death_toll+=1
+        else:
+            return
+        
 class Ghost(Basic_Actor):
     __images={}
     prev_time=0
@@ -303,7 +365,7 @@ class Ghost(Basic_Actor):
             
         self.image=Ghost.__images[original_body.__class__].copy()
         self.image.set_alpha(255)
-        self.rect.size=self.image.get_size()
+        #self.rect.size=self.image.get_size()
 
         self.embody()
         #self.body.set_position(vec2d(original_body.rect.center[0],original_body.rect.center[1]))
@@ -333,6 +395,7 @@ class Ghost(Basic_Actor):
         space.add(shape)
         space.add(body)
         self.body=body
+        Basic_Actor.level.with_body.add(self)
             
     def update(self, current_time):
         Basic_Actor.update(self, current_time)
@@ -392,5 +455,7 @@ class Floor(Sprite):
         
     def get_items(self):
         return self.items
+
+        
 
         

@@ -49,7 +49,7 @@
                 'C2': 150,
                 'C3': 150,
                 'D': 200},
-    'Initial Bodycount': {'A': 1,
+    'Initial Bodycount': {'A': 0,
                           'B1': 0,
                           'B2': 0,
                           'C1': 0,
