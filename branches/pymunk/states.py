@@ -59,7 +59,11 @@ class Wandering():
                 parent_id=parent.id
                 floor_collisions=State_Machine.floor_collisions
                 collision_data=floor_collisions.pop(parent_id, None)
+                velocity=parent.body.get_velocity()
                 if collision_data is None:
+                        fall_speed=velocity[1]
+                        if abs(fall_speed)>200:
+                                self.parent_SM.set_state(Falling)
                         return
                 
                 
@@ -92,20 +96,51 @@ class Wandering():
                                 parent.fle_from=None
                                 
                 parent.body.apply_force(total_force, vec2d(0,0))
-                
-                velocity=parent.body.get_velocity()[0]
+
+                velocity=velocity[0]
                 if abs(velocity)>0.01:
                         parent.orientation=int(velocity/abs(velocity))
                         parent.set_image(parent.orientation, parent.current_image)
 
+
+
         def exit(self):
                 self.parent.body.reset_forces()
+                
+class Falling():
+        max_velocity=0
+        def __init__(self, parent_machine):
+                state_init(self, parent_machine)
+                self.time_step=40
+        
+
+        def execute(self):
+                parent=self.parent
+                parent_id=parent.id
+                floor_collisions=State_Machine.floor_collisions
+                collision_data=floor_collisions.pop(parent_id, None)
+                velocity=parent.body.get_velocity()
+                if self.max_velocity<abs(velocity[1]):
+                        self.max_velocity=abs(velocity[1])
+                
+                if collision_data==None:
+                        return
+                else:
+                        print "Damage taken proportional to", self.max_velocity
+                        parent.damage(self.max_velocity)
+                        if parent.alive():
+                                self.parent_SM.set_state(Wandering)
+                        else:
+                                return
+        
+        def exit(self):
+                pass
                 
 
 class Using_Gate():
         def __init__(self, parent_machine):
                 state_init(self, parent_machine)
-                self.time_step=500
+                self.time_step=1000
                 
         def enter(self):
                 self.parent.body.set_velocity(vec2d(0,0))
@@ -113,12 +148,13 @@ class Using_Gate():
                 decision_number=random.uniform(0,1)
                 probability=0.5*tanh(1*deltaDeath)+0.5
                 if decision_number<probability:
-                        pass#self.parent.invisible()
+                        self.parent.invisible()
                 else:
                         self.parent_SM.set_state(Wandering)      
                         
         def execute(self):
                 if self.gate.enter(self.parent):
+                        self.parent.body.set_velocity(vec2d(0,0))
                         self.parent_SM.set_state(Wandering)      
                         
                         
