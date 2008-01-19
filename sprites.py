@@ -44,7 +44,7 @@ class Basic_Actor(Sprite):
     def __init__(self, starting_position):
         Sprite.__init__(self)
         if hasattr(starting_position,'size' ):
-            self.rect=starting_position
+            self.set_position(starting_position)
         else:
             self.rect=pygame.Rect((0,0), (0,0))
             self.rect.center=starting_position
@@ -57,7 +57,7 @@ class Basic_Actor(Sprite):
         #self.movement_state=Basic_Actor.Physics_Machine(self, self.rect.center)
         
     def set_position(self, coordinates):
-        self.rect.center=[int(rect[0]), int(rect[1])]
+        self.rect.center=[int(coordinates[0]), int(coordinates[1])]
         
         self.crect.center=self.rect.center
 
@@ -123,31 +123,20 @@ class Caveman(Basic_Actor):
         #self.state.set_state(Wandering)
 
     def set_position(self, coordinates):
-        if not self.standing_on is None:
-            displacement=coordinates[0]-self.rect.center[0]
-            self.displacement+=self.orientation*displacement
-            if displacement>0:
-                self.orientation=1
-                self.rect.center=[int(coordinates[0]), int(coordinates[1])]
-            else:
-                self.orientation=-1
-                self.rect.center=[int(coordinates[0])+1, int(coordinates[1])]
-        else:
-            self.rect.center=[int(coordinates[0]), int(coordinates[1])]
-        self.crect.center=self.rect.center
+        self.body.set_position(vec2d(coordinates))
+
+        #self.crect.center=self.rect.center
     
     def set_new_floor(self, parent, coordinates):
-        self.rect.center=coordinates
-        self.body.set_position(vec2d(coordinates[0], coordinates[1]))
-        self.body.set_position(vec2d(coordinates[0], coordinates[1]))
+        self.set_position(coordinates)
+        #self.body.set_position(vec2d(coordinates[0], coordinates[1]))
+        #self.body.set_position(vec2d(coordinates[0], coordinates[1]))
 
-        if hasattr(self, 'crect'):
-            self.crect.center=self.rect.center
         self.displacement=0
         #self.reset_PM()
                        
     def get_position(self):
-        return self.rect.center
+        return self.body.position
 
 
 

@@ -10,6 +10,7 @@ import pygame
 import sprites
 import engine
 from pymunk import vec2d
+import math
 #from numpy import array, matrix
 
 SCREENRECT=Rect(0,0,800,600)
@@ -18,6 +19,8 @@ random.seed(200)
 
 class Nivel():
     #bordes=Rect(0,0, 100, 100) 
+    offset=vec2d(0,0)
+    old_offset=vec2d(0,0)
     enteroAzar=random.randint
     import pymunk as pm
     from pymunk.vec2d import vec2d
@@ -49,7 +52,7 @@ class Nivel():
         self.space.resize_active_hash()
         self.space.set_damping(0.2)
         self.background=pygame.Surface(SCREENRECT.size).convert()
-        
+        self.temp_background=self.background.copy()
         self.last_time=0
         if file is not None:
             self.populate_from_file(file, timer)
@@ -57,6 +60,15 @@ class Nivel():
     def set_as_BG(self, item):
         self.background.blit(item.image, item.rect)
         
+    def set_offset(self, new_offset):
+        self.old_offset=self.offset
+        self.offset=new_offset
+        
+    def get_background(self):
+       #if not self.old_offset==self.offset:
+        #    self.temp_background.blit(self.background, self.offset)
+        return self.temp_background
+    
     def transform_Y(self, Ycoord):
         return Ycoord
     
@@ -213,7 +225,10 @@ class Nivel():
             
             #ok... now sincronizes sprites with pymunk. Should use a new group for sprites with body
             for sprite in self.with_body:
-                sprite.rect.center=[sprite.body.position[0], sprite.body.position[1]]
+                rel_pos=sprite.body.position+self.offset
+
+                sprite.rect.center=[rel_pos[0], rel_pos[1]]
+            #for sprite in all
             
 class Mouse(pygame.sprite.Sprite):
     def __init__(self, position, radius):
@@ -267,8 +282,8 @@ def main():
                         sprite.flee_from=event.pos
                         displacement=vec2d(event.pos)-vec2d(sprite.rect)
                         length=displacement.length
-                        if length<1: length=1.0
-                        displacement=10000*displacement/length**2
+                        if length<10: length=10.0
+                        displacement=15000*displacement/length**2
                         length=displacement.length
                         displacement[1]=-random.uniform(0,length)
                         displacement[0]=0
@@ -277,7 +292,7 @@ def main():
                     if len(caught)>0:
                         caught[0].kill()
 
-                
+        nivel_actual.set_offset(vec2d(50*math.sin(0.5*pygame.time.get_ticks()*2*math.pi/2462.0),50*math.sin(0.5*pygame.time.get_ticks()*2*math.pi/2000.0)))
         #clear sprites
         
         
@@ -285,11 +300,13 @@ def main():
         nivel_actual.update(pygame.time.get_ticks())
 
         #redraw sprites
+        screen.blit(nivel_actual.background, nivel_actual.offset)
+        #pygame.display.flip()
         rectlist=nivel_actual.visible.draw(screen)
-        pygame.display.update(rectlist)
-
-        clock.tick(50)
-        nivel_actual.visible.clear(screen, nivel_actual.background)
+        pygame.display.update()#rectlist)
+        
+        clock.tick()
+        #nivel_actual.visible.clear(screen, nivel_actual.get_background())
         pygame.display.set_caption("fps: " + str(clock.get_fps()))
 
         
