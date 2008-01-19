@@ -416,7 +416,7 @@ class Floor(Sprite):
 
         
         Floor._images=load_sequence("floor.png", total_images=self.total_images, load_mirror=False)[0]
-        self.image=pygame.Surface((Floor._images[0].get_width()*ancho,Floor._images[0].get_height())).convert()
+        self.image=pygame.Surface((int(Floor._images[0].get_width()*ancho),int(Floor._images[0].get_height()))).convert()
         self.image.blit(Floor._images[0], [0,0])
         
         for i in range(1,ancho-1):
