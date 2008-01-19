@@ -268,8 +268,10 @@ def main():
                         displacement=vec2d(event.pos)-vec2d(sprite.rect)
                         length=displacement.length
                         if length<1: length=1.0
-                        displacement=displacement.rotated(random.randint(0,180))
-                        displacement=20000*displacement/length**2
+                        displacement=10000*displacement/length**2
+                        length=displacement.length
+                        displacement[1]=-random.uniform(0,length)
+                        displacement[0]=0
                         sprite.body.set_velocity(displacement)
                     caught=pygame.sprite.spritecollide(Mouse(event.pos, 10),nivel_actual.enemies, False)
                     if len(caught)>0:
