@@ -1,7 +1,7 @@
 try:
     import psyco 
     psyco.full()
-except:
+except ImportError:
     print "Psyco 1.6 or greater not found, will run without optimizations"
     
 import random

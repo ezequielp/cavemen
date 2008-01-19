@@ -34,7 +34,8 @@ class State_Machine():
         self.__state=new_state(self)
         self.previous_time=random.uniform(0, self.__state.time_step)
 
-        self.__state.enter()
+        if hasattr(self.__state, 'enter'):
+            self.__state.enter()
         
     def update_state(self, current_time):
         #if not self.previous_time:

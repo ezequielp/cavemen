@@ -90,7 +90,7 @@ class Caveman(Basic_Actor):
     image=None
     _images=[]
     memory=3000
-    
+    energy=400
     def __init__(self, initial_position, AI):
         Basic_Actor.__init__(self, initial_position)
         from states import Wandering
@@ -139,6 +139,8 @@ class Caveman(Basic_Actor):
     def set_new_floor(self, parent, coordinates):
         self.rect.center=coordinates
         self.body.set_position(vec2d(coordinates[0], coordinates[1]))
+        self.body.set_position(vec2d(coordinates[0], coordinates[1]))
+
         if hasattr(self, 'crect'):
             self.crect.center=self.rect.center
         self.displacement=0
@@ -179,6 +181,11 @@ class Caveman(Basic_Actor):
         ghost.visible()
         skeleton.visible()
         Sprite.kill(self)
+        
+    def damage(self, damage):
+        self.energy-=damage
+        if self.energy<0:
+            self.kill()
         
     def embody(self):
         space=Basic_Actor.level.space
