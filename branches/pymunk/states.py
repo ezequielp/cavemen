@@ -1,5 +1,4 @@
 
-from psyco.classes import *
 import random
 from math import tanh
 from engine import State_Machine
