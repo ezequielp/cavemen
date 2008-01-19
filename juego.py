@@ -1,3 +1,9 @@
+try:
+    import psyco 
+    psyco.full()
+except:
+    print "Psyco 1.6 or greater not found, will run without optimizations"
+    
 import random
 from pygame.locals import *
 import pygame
