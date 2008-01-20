@@ -43,6 +43,7 @@ class Basic_Actor(Sprite):
     
     def __init__(self, starting_position):
         Sprite.__init__(self)
+        self.level.all.add(self)
         if hasattr(starting_position,'size' ):
             self.set_position(starting_position)
         else:
@@ -56,10 +57,11 @@ class Basic_Actor(Sprite):
         #self.standing_on=None
         #self.movement_state=Basic_Actor.Physics_Machine(self, self.rect.center)
         
-    def set_position(self, coordinates):
-        self.rect.center=[int(coordinates[0]), int(coordinates[1])]
+
+    #def set_position(self, coordinates):
+        #self.rect.center=[int(coordinates[0]), int(coordinates[1])]
         
-        self.crect.center=self.rect.center
+        #self.crect.center=self.rect.center
 
     def seen(self, object):
         '''Comunicates to the sprite, that an object was seen'''
@@ -85,6 +87,10 @@ class Basic_Actor(Sprite):
         
     def invisible(self):
         Basic_Actor.level.set_invisible(self)
+        
+
+
+        #self.crect.center=self.rect.center
 
 class Caveman(Basic_Actor):
     image=None
@@ -93,6 +99,7 @@ class Caveman(Basic_Actor):
     energy=400
     def __init__(self, initial_position, AI):
         Basic_Actor.__init__(self, initial_position)
+        
         from states import Wandering
 
         
@@ -122,11 +129,8 @@ class Caveman(Basic_Actor):
         self.standing_on=None
         #self.state.set_state(Wandering)
 
-    def set_position(self, coordinates):
-        self.body.set_position(vec2d(coordinates))
 
-        #self.crect.center=self.rect.center
-    
+  
     def set_new_floor(self, parent, coordinates):
         self.set_position(coordinates)
         #self.body.set_position(vec2d(coordinates[0], coordinates[1]))
@@ -135,9 +139,6 @@ class Caveman(Basic_Actor):
         self.displacement=0
         #self.reset_PM()
                        
-    def get_position(self):
-        return self.body.position
-
 
 
     def update(self, current_time):
@@ -291,7 +292,7 @@ random.seed(100)
 class Skeleton(Basic_Actor):
     _image=None
     def __init__(self, original_body):
-        Basic_Actor.__init__(self,original_body.rect)
+        Basic_Actor.__init__(self,original_body.body.get_position())
         if Skeleton._image is None:
             Skeleton._image=load_sequence("Skeleton.png", 1, load_mirror=False)[0]
 
@@ -299,17 +300,17 @@ class Skeleton(Basic_Actor):
         self.rect=self.image.get_rect()
         self.rect.center=original_body.rect.center
         
-        self.embody()
+        self.embody(original_body.body.get_position())
         self.body.set_velocity(vec2d(0,0))
         
-    def embody(self):
+    def embody(self, position):
         space=Basic_Actor.level.space
         actor=self
         center=actor.rect.center
         radius=actor.rect.width/2.0
         
         body=pm.Body(10,1e100)
-        body.position=center[0], center[1]
+        body.position=position[0], position[1]
         
         shape=pm.Circle(body, radius, vec2d(0,0))
         #shape.set_layers(0)
@@ -326,15 +327,16 @@ class Skeleton(Basic_Actor):
         
     def update(self, current_time):
         if hasattr(self,'current_floor'):
-            if self.rect.center[1]<self.current_floor.rect.center[1]:
-                self.rect.center=[self.rect.center[0], self.rect.center[1]+1]
+            if self.get_position()[1]<self.current_floor.get_position()[1]+15:
+                self.set_position([self.get_position()[0], self.get_position()[1]+1])
                 return
             else:
                 self.current_floor.death_toll-=1
-                #self.level.set_as_BG(self)
-                
+                self.level.set_as_BG(self)
+                del self.body
+                Basic_Actor.level.with_body.remove(self)
                 Basic_Actor.level.all.remove(self)
-                #Basic_Actor.level.visible.remove(self)
+                Basic_Actor.level.visible.remove(self)
                 
         elif hasattr(self, 'body') and (self.body.get_velocity()-vec2d(0,0)).get_length()<0.01:
             floor_collisions=Basic_Actor.State_Machine.floor_collisions
@@ -344,8 +346,8 @@ class Skeleton(Basic_Actor):
             space=Basic_Actor.level.space
             space.remove_shape(self.shape)
             space.remove_body(self.body)
-            del self.body
-            Basic_Actor.level.with_body.remove(self)
+            #del self.body
+            #Basic_Actor.level.with_body.remove(self)
             self.current_floor.death_toll+=1
         else:
             return
@@ -353,8 +355,9 @@ class Skeleton(Basic_Actor):
 class Ghost(Basic_Actor):
     __images={}
     prev_time=0
+    
     def __init__(self, original_body):
-        Basic_Actor.__init__(self, original_body.rect)
+        Basic_Actor.__init__(self, original_body.body.position)
         if not original_body.__class__ in Ghost.__images:
             Ghost.__images[original_body.__class__]=original_body.image.copy()
 
@@ -362,8 +365,8 @@ class Ghost(Basic_Actor):
         self.image=Ghost.__images[original_body.__class__].copy()
         self.image.set_alpha(255)
         #self.rect.size=self.image.get_size()
-
         self.embody()
+
         #self.body.set_position(vec2d(original_body.rect.center[0],original_body.rect.center[1]))
         self.body.set_velocity(vec2d(0,-400))
         self.body.apply_force(vec2d(0,-9000), vec2d(0,0))

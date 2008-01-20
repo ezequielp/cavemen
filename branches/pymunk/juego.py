@@ -58,7 +58,8 @@ class Nivel():
             self.populate_from_file(file, timer)
 
     def set_as_BG(self, item):
-        self.background.blit(item.image, item.rect)
+        position=vec2d(item.rect)-self.offset
+        self.background.blit(item.image, position)
         
     def set_offset(self, new_offset):
         self.old_offset=self.offset
@@ -89,6 +90,8 @@ class Nivel():
         floor.set_id(shape.id)
         
         self.space.add_static_shape(shape)
+        floor.body=body
+        body.set_position(vec2d(floor.rect.topleft))
         #self.with_body.add(floor)
 
         
