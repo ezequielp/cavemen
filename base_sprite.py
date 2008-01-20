@@ -1,4 +1,5 @@
 from pygame.sprite import Sprite
+from pymunk import vec2d
 
 class Base_Sprite(Sprite):
     id=0
@@ -16,6 +17,14 @@ class Base_Sprite(Sprite):
     
     def get_sprite(self,id):
         return Base_Sprite.sprites[id]
+    
+    def set_position(self, coordinates):
+        if hasattr(self, 'body'):
+            self.body.set_position(vec2d(coordinates))
+
+    def get_position(self):
+        return self.body.position
+
     
     def update(self):
         Sprite.update(self)
