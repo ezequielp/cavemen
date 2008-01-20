@@ -303,6 +303,7 @@ def main():
         nivel_actual.update(pygame.time.get_ticks())
 
         #redraw sprites
+        screen.fill((0,0,0))
         screen.blit(nivel_actual.background, nivel_actual.offset)
         #pygame.display.flip()
         rectlist=nivel_actual.visible.draw(screen)
