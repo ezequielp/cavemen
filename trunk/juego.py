@@ -1,8 +1,8 @@
-try:
-    import psyco 
-    psyco.full()
-except ImportError:
-    print "Psyco 1.6 or greater not found, will run without optimizations"
+#try:
+    #import psyco 
+    #psyco.full()
+#except ImportError:
+    #print "Psyco 1.6 or greater not found, will run without optimizations"
     
 import random
 from pygame.locals import *
@@ -135,9 +135,7 @@ class Nivel():
         
         for i in range(num_walkers):
             caminante=sprites.Caveman([self.enteroAzar(50,700),600-config['Relative Placement']['A'][1]-50], True)
-            caminante.id=i
             self.enemies.add(caminante)
-            caminante.embody()
 
     
         #personaje=sprites.Volador([400,500], False)
@@ -309,7 +307,7 @@ def main():
         rectlist=nivel_actual.visible.draw(screen)
         pygame.display.update()#rectlist)
         
-        clock.tick()
+        clock.tick(40)
         #nivel_actual.visible.clear(screen, nivel_actual.get_background())
         pygame.display.set_caption("fps: " + str(clock.get_fps()))
 

@@ -1,19 +1,19 @@
 import pygame
-from base_sprite import Base_Sprite as Sprite
+import random
+import pymunk as pm
+
+from pygame.sprite import Sprite
+from pygame import Rect
 from math import tanh
 from os import path
-import pymunk as pm
 from pymunk import vec2d
-import random
 from groups import definitions as groups
-
-from items import *
-
+from states import Using_Gate as Trigger_Gate
 
 class Callable:
     def __init__(self, anycallable):
         self.__call__ = anycallable
-  
+
 
 def load_sequence(file_name, total_images, load_mirror=True):
     '''Loads an image an splits it in frames. If load_mirror is True, the function will return a list of two lists, the first with the sequence of images and the second with the images flipped along the y axis. If load_mirror is False, the function will return the list of images
@@ -33,12 +33,73 @@ def load_sequence(file_name, total_images, load_mirror=True):
 
     return sequence
 
-class Basic_Actor(Sprite):
+
+class Basic_Sprite(Sprite):
+    id=0
+    sprites={}
+    level=None
+    def __init__(self):
+        Sprite.__init__(self)
+        
+        #self.id=Basic_Sprite.id
+        #print self.id
+        #Basic_Sprite.id+=1
+    
+    def set_id(self,id):
+        self.id=id
+        Basic_Sprite.sprites[id]=self
+    
+    def get_sprite(self,id):
+        return Basic_Sprite.sprites[id]
+    
+    def set_position(self, coordinates):
+        assert hasattr(self, 'body'), "This sprite doesn't have body... "
+        self.body.set_position(vec2d(coordinates))
+
+
+    def get_position(self):
+        return self.body.position
+
+    def embody(self, position, group='CAVEMEN', layers=255, friction=0):
+        space=Basic_Actor.level.space
+        actor=self
+        center=actor.rect.center
+        radius=actor.rect.width/2.0
+        
+        body=pm.Body(10,1e100)
+        body.position=position[0], position[1]
+        
+        shape=pm.Circle(body, radius, vec2d(0,0))
+        #shape.set_layers(0)
+        shape.group=groups[group]
+        shape.collision_type = groups[group]
+        shape.friction=friction
+        actor.set_id(shape.id)
+        
+        space.add(shape)
+        space.add(body)
+        actor.body=body 
+        actor.shape=shape
+        Basic_Actor.level.with_body.add(self)
+    
+    def update(self):
+        Sprite.update(self)
+        
+    def set_level(level):
+        if Basic_Sprite.level is None:
+            Basic_Sprite.level=level
+        else:
+            raise BaseException, "level already defined!..."
+    
+    set_level=Callable(set_level) 
+    def get_level(self):
+        return Basic_Actor.level
+    
+
+class Basic_Actor(Basic_Sprite):
 #    from engine import Physics_Machine
     from engine import State_Machine
     
-    level=None
-
     flee_from=None
     
     def __init__(self, starting_position):
@@ -72,16 +133,7 @@ class Basic_Actor(Sprite):
         Sprite.update(self)
         #self.movement_state.update_state(current_time)
         
-    def set_level(level):
-        if Basic_Actor.level is None:
-            Basic_Actor.level=level
-        else:
-            raise BaseException, "level already defined!..."
-    
-    set_level=Callable(set_level) 
-    def get_level(self):
-        return Basic_Actor.level
-    
+
     def visible(self):
         Basic_Actor.level.set_visible(self)
         
@@ -127,6 +179,7 @@ class Caveman(Basic_Actor):
         
         self.state=Basic_Actor.State_Machine(self, Wandering)
         self.standing_on=None
+        self.embody(initial_position)
         #self.state.set_state(Wandering)
 
 
@@ -169,34 +222,15 @@ class Caveman(Basic_Actor):
         self.level.all.add(ghost)
         self.level.all.add(skeleton)
         ghost.visible()
-        skeleton.visible()
-        Sprite.kill(self)
+        skeleton.visible()    
+        Basic_Actor.kill(self)
         
     def damage(self, damage):
         self.energy-=damage
         if self.energy<0:
             self.kill()
         
-    def embody(self):
-        space=Basic_Actor.level.space
-        cm=self
-        rect=cm.rect
-        radius=rect.width/2.0
-        center=rect.center
-        
-        body=pm.Body(10,1e100)
-        body.position=center[0], center[1]
 
-        shape=pm.Circle(body, radius, vec2d(0,0))
-        shape.group=groups['CAVEMEN']
-        shape.collision_type = groups['CAVEMEN']
-        shape.friction=0
-        cm.set_id(shape.id)
-        
-        space.add(shape)
-        space.add(body)
-        self.body=body
-        Basic_Actor.level.with_body.add(self)
 
 
 SCREENRECT=Rect(0,0,800,600)
@@ -300,30 +334,10 @@ class Skeleton(Basic_Actor):
         self.rect=self.image.get_rect()
         self.rect.center=original_body.rect.center
         
-        self.embody(original_body.body.get_position())
+        self.embody(original_body.body.get_position(), layers=0, friction=0.9)
         self.body.set_velocity(vec2d(0,0))
         
-    def embody(self, position):
-        space=Basic_Actor.level.space
-        actor=self
-        center=actor.rect.center
-        radius=actor.rect.width/2.0
-        
-        body=pm.Body(10,1e100)
-        body.position=position[0], position[1]
-        
-        shape=pm.Circle(body, radius, vec2d(0,0))
-        #shape.set_layers(0)
-        shape.group=groups['CAVEMEN']
-        shape.collision_type = groups['CAVEMEN']
-        shape.friction=0.9
-        actor.set_id(shape.id)
-        
-        space.add(shape)
-        space.add(body)
-        actor.body=body 
-        actor.shape=shape
-        Basic_Actor.level.with_body.add(self)
+    
         
     def update(self, current_time):
         if hasattr(self,'current_floor'):
@@ -365,7 +379,7 @@ class Ghost(Basic_Actor):
         self.image=Ghost.__images[original_body.__class__].copy()
         self.image.set_alpha(255)
         #self.rect.size=self.image.get_size()
-        self.embody()
+        self.embody(self.rect.center, group='INCORPOREAL', layers=0)
 
         #self.body.set_position(vec2d(original_body.rect.center[0],original_body.rect.center[1]))
         self.body.set_velocity(vec2d(0,-400))
@@ -375,26 +389,6 @@ class Ghost(Basic_Actor):
         #self.aceleracion=-Basic_Actor.GRAVEDAD
         #self.prev_time=0
         
-    def embody(self):
-        space=Basic_Actor.level.space
-        cm=self
-        center=cm.rect.center
-        radius=cm.rect.width/2.0
-        
-        body=pm.Body(10,1e100)
-        body.position=center[0], center[1]
-        
-        shape=pm.Circle(body, radius, vec2d(0,0))
-        shape.set_layers(0)
-        #shape.group=groups['CAVEMEN']
-        shape.collision_type = groups['INCORPOREAL']
-        shape.friction=0
-        cm.set_id(shape.id)
-        
-        space.add(shape)
-        space.add(body)
-        self.body=body
-        Basic_Actor.level.with_body.add(self)
             
     def update(self, current_time):
         Basic_Actor.update(self, current_time)
@@ -404,7 +398,7 @@ class Ghost(Basic_Actor):
                 self.kill()
             self.prev_time+=100
 
-class Floor(Sprite):
+class Floor(Basic_Sprite):
     image=None
     _images=[]
     total_images=8
@@ -456,5 +450,90 @@ class Floor(Sprite):
         return self.items
 
         
+class Item(Basic_Sprite):
+    name="generic"
+    def update(self, current_time):
+        Sprite.update(self)
+        
+    def set_position(self, position):
+        self.rect.midbottom=position
+        if hasattr(self, 'crect'): self.crect=self.rect
+    
+    def get_position(self):
+        return self.rect.center
+    
+    def get_trigger_state(self):
+        if hasattr(self, 'Trigger_Class'): return self.Trigger_Class
+        else: return None
+    
+    def __init__(self):
+        Sprite.__init__(self)
+        self.Trigger_Class=None
 
+
+class Gate(Item):
+    label="Gate"
+    
+    def __init__(self):
+        Item.__init__(self)
+        self.image=pygame.image.load(path.join("media","Door.png")).convert()
+        self.image.set_colorkey(self.image.get_at((0,0)), pygame.locals.RLEACCEL)
+        self.image=pygame.transform.scale(self.image, (30,34))
+        self.rect=self.image.get_rect()
+        #self.crect=self.rect
+        class Gate_Trigger(Trigger_Gate):
+            gate=self
+            def __init__(self, parent_state_machine):
+                Trigger_Gate.__init__(self, parent_state_machine)
+            
+        self.Trigger_Class=Gate_Trigger
+        
+    def connect_to(self, gate):
+        self.destination_gate=gate
+        
+    def update(self, current_time):
+        Sprite.update(self)
+        
+    def enter(self, character):
+        #assert character.crect.colliderect(self.crect), "Error"
+        character.set_new_floor(self.destination_gate.parent,self.destination_gate.rect.center)
+        return True
+        #assert character.crect.colliderect(self.destination_gate.crect), "Error"
+        
+    def destination_death_toll(self):
+        return self.destination_gate.parent.death_toll
+    
+    def create_connected():
+        gate1=Gate()
+        gate2=Gate()
+        gate1.connect_to(gate2)
+        gate2.connect_to(gate1)
+        return gate1, gate2
+    
+    create_connected=Callable(create_connected)
+
+    
+class Shelter(Gate):
+    def __init__(self):
+        Gate.__init__(self)
+        
+    def destination_death_toll(self):
+        return 0
+    
+    def enter(self, character):
+        character.body.set_velocity(vec2d(0,0))
+        if self.parent.death_toll==0:
+            return True
+        else:
+            character.body.set_velocity(vec2d(0,-200))
+
+            return False
+        
+class Cliff(Item):
+    def __init__(self,parent):
+        Item.__init__(self)
+        self.image=pygame.Surface([10,10])
+        self.parent=parent
+        self.rect=pygame.Rect([0,0],self.image.get_size())
+        
         
