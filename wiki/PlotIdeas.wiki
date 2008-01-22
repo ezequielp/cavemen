@@ -1,4 +1,5 @@
 #summary Ideas for the background story of the game
+#labels Phase-Design
 
 = Introduction =
 
@@ -21,3 +22,5 @@ _Food was spreading all around the world and a new era of prosperity was beginni
 I think these ideas are a good to start. Basically the player is one of these shepherds and he/she has to eat from their flock, but also must take care of the survival and reproduction. The tool of the player is the interaction with the flock through hunting and terror but eventually more complex kind of interactions could appear.
 The animals will evolve and get more and more intelligent and will try to get rid of the dragon (or adore it, or any solution you can imagine). 
 The Dragons world could be very complex and given that they have a clan organization (or something like that, they are intelligent but wild animals, they do not like social systems). We can have attacking dragons, we can have territories to cross with the flock. We can have others predators apart from the dragons...etc...etc..
+
+Read the [GameOutline game outline] to learn how will this story be laid out. 
