@@ -58,5 +58,5 @@
                           'D': 0
                           },
     'Options': {'Gate directed': False,
-            'Walkers': 200}
+            'Walkers': 1}
 }

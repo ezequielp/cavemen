@@ -10,12 +10,10 @@ class Callable:
 class State_Machine():
     __state= None
     __parent_actor=None
-    import sprites as actors
     from pymunk import vec2d
     level=None
     
     def __init__(self, parent_actor, Initial_State):
-        assert isinstance(parent_actor, State_Machine.actors.Basic_Actor), str(parent_actor)+" is not an actor."
         self.__parent_actor=parent_actor
         self.set_state(Initial_State) #The machine starts in the initial state 
         if not State_Machine.level:
