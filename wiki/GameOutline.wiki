@@ -17,5 +17,5 @@ One idea would be starting the game with a simple text legend "There are no pred
 
 With this in mind I'll write down how what I think should be the first chapter of the game, where the player learns to perform the basic movements. This chapter should be also used to cleverly introduce the player to the world.
 
-==Standing up and walking==
+===Standing up and walking===
 The main character falls from his egg and rolls to the floor. He lays there surrounded by many other eggs and baby dragons in his own situation. The player is hinted he must stand up by looking at the rest struggling to stand up and then starting to walk. 
