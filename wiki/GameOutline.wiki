@@ -1,0 +1,21 @@
+#summary One-sentence summary of this page.
+#labels Phase-Design
+
+= Main Structure =
+The game could be divided in chapters, maybe called "Ages". Each age will introduce different aspects of the game.
+
+Possible Ages. Names are tentative
+
+==The Golden Age== 
+The player is introduced to the user interface. One of the main goals of this game is avoiding cutscenes or narrators, the obvious approach to a training level is a mentor or guide that teaches the player how to do basic movements. There are some problems with this:
+
+ * *It is a cliche.* It is the first idea that comes to people minds when thinking about creating a tutorial that is non intrusive.
+ * *It is not immersive.* At some point you'll have to tell the player what key to press, ending up with weird dialog lines like "Click SPACE to jump, you Maggot!!". Even if this is unavoidable, it is simpler and as effective to just say "Click SPACE to jump" without recurring to in-game characters.
+ * *It detached from the game*. Generally, the training phase is an unwanted part of the game, with little or no relation to the game story.
+
+One idea would be starting the game with a simple text legend "There are no predefined controls to this game.  Controls will be defined as you play. You can reassign keys later from the main menu.". That way you can have lines like "To fly you need to move your wings up and down" and then record the keys the player click. 
+
+With this in mind I'll write down how what I think should be the first chapter of the game, where the player learns to perform the basic movements. This chapter should be also used to cleverly introduce the player to the world.
+
+==Standing up and walking==
+The main character falls from his egg and rolls to the floor. He lays there surrounded by many other eggs and baby dragons in his own situation. The player is hinted he must stand up by looking at the rest struggling to stand up and then starting to walk. 
