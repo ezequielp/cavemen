@@ -1,8 +1,8 @@
 #summary The physics engine
+#labels Phase-Implementation
 
-= Introduction =
+= Pymunk =
 
-This is the physics engine of the game. For the moment (for the sake of simplicity) it is implemented as a Finite State Machine (FSM) that has two possible states, each one representing an approximation to Newtonian physics. For the final version we could need to implement a complete physic engine here (Bullet,Tokamak, Newton, ODE, etc..) 
+Physics has been implemented using [http://www.pyweek.org/d/932/ pymunk] python bindings of the [http://wiki.slembcke.net/main/published/Chipmunk  chipmunk physics engine].
 
-
-= Details =
+This is a very flexible engine that will allow us to implement things like explosions. Hopefully buoyancy will be implemented by the time it's needed.
