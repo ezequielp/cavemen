@@ -40,7 +40,15 @@ class Basic_Sprite(Sprite):
     level=None
     def __init__(self):
         Sprite.__init__(self)
-        
+        class FakeBody():
+            position=vec2d(0,0)
+            def __init__(self):
+                pass
+            
+            def set_position(self, position):
+                self.position=position
+            
+        self.body=FakeBody()
         #self.id=Basic_Sprite.id
         #print self.id
         #Basic_Sprite.id+=1
@@ -103,7 +111,7 @@ class Basic_Actor(Basic_Sprite):
     flee_from=None
     
     def __init__(self, starting_position):
-        Sprite.__init__(self)
+        Basic_Sprite.__init__(self)
         self.level.all.add(self)
         if hasattr(starting_position,'size' ):
             self.set_position(starting_position)
@@ -124,10 +132,10 @@ class Basic_Actor(Basic_Sprite):
         
         #self.crect.center=self.rect.center
 
-    def seen(self, object):
-        '''Comunicates to the sprite, that an object was seen'''
-        if not object in self.object_queue:
-            self.object_queue.append(object)
+    #def seen(self, object):
+        #'''Comunicates to the sprite, that an object was seen'''
+        #if not object in self.object_queue:
+            #self.object_queue.append(object)
             
     def update(self, current_time):
         Sprite.update(self)
@@ -325,6 +333,8 @@ random.seed(100)
         #self.direccion=direccion
 class Skeleton(Basic_Actor):
     _image=None
+    last_update=0
+    update_interval=400
     def __init__(self, original_body):
         Basic_Actor.__init__(self,original_body.body.get_position())
         if Skeleton._image is None:
@@ -337,16 +347,19 @@ class Skeleton(Basic_Actor):
         self.embody(original_body.body.get_position(), layers=0, friction=0.9)
         self.body.set_velocity(vec2d(0,0))
         
+        
     
         
     def update(self, current_time):
         if hasattr(self,'current_floor'):
-            if self.get_position()[1]<self.current_floor.get_position()[1]+15:
-                self.set_position([self.get_position()[0], self.get_position()[1]+1])
-                return
+            if self.get_position()[1]<self.current_floor.get_position()[1]+5:
+                if current_time>self.last_update+self.update_interval:
+                    self.set_position([self.get_position()[0], self.get_position()[1]+1])
+                    self.last_update=current_time
+                    return
             else:
                 self.current_floor.death_toll-=1
-                self.level.set_as_BG(self)
+                self.current_floor.image.blit(self.image, [self.rect[0]-self.current_floor.rect[0], self.rect[1]-self.current_floor.rect[1]])
                 del self.body
                 Basic_Actor.level.with_body.remove(self)
                 Basic_Actor.level.all.remove(self)
@@ -457,17 +470,18 @@ class Item(Basic_Sprite):
         
     def set_position(self, position):
         self.rect.midbottom=position
-        if hasattr(self, 'crect'): self.crect=self.rect
+        Basic_Sprite.set_position(self, self.rect.topleft)
+        #if hasattr(self, 'crect'): self.crect=self.rect
     
-    def get_position(self):
-        return self.rect.center
+    #def get_position(self):
+        #return self.rect.center
     
     def get_trigger_state(self):
         if hasattr(self, 'Trigger_Class'): return self.Trigger_Class
         else: return None
     
     def __init__(self):
-        Sprite.__init__(self)
+        Basic_Sprite.__init__(self)
         self.Trigger_Class=None
 
 
@@ -496,7 +510,7 @@ class Gate(Item):
         
     def enter(self, character):
         #assert character.crect.colliderect(self.crect), "Error"
-        character.set_new_floor(self.destination_gate.parent,self.destination_gate.rect.center)
+        character.set_new_floor(self.destination_gate.parent,self.destination_gate.get_position())
         return True
         #assert character.crect.colliderect(self.destination_gate.crect), "Error"
         
@@ -534,6 +548,5 @@ class Cliff(Item):
         Item.__init__(self)
         self.image=pygame.Surface([10,10])
         self.parent=parent
+
         self.rect=pygame.Rect([0,0],self.image.get_size())
-        
-        

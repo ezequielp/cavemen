@@ -1,8 +1,8 @@
-#try:
-    #import psyco 
-    #psyco.full()
-#except ImportError:
-    #print "Psyco 1.6 or greater not found, will run without optimizations"
+try:
+    import psyco 
+    psyco.full()
+except ImportError:
+    print "Psyco 1.6 or greater not found, will run without optimizations"
     
 import random
 from pygame.locals import *
@@ -78,8 +78,8 @@ class Nivel():
         
         transform_Y=self.transform_Y
         rect=floor.rect
-        point_a=floor.rect.midleft
-        point_b=floor.rect.midright
+        point_a=floor.rect.topleft
+        point_b=floor.rect.topright
         width=floor.rect.height/2.0
         
         body = self.pm.Body(1e100, 1e100)
@@ -92,7 +92,7 @@ class Nivel():
         self.space.add_static_shape(shape)
         floor.body=body
         body.set_position(vec2d(floor.rect.topleft))
-        #self.with_body.add(floor)
+        self.with_body.add(floor)
 
         
         
@@ -107,7 +107,7 @@ class Nivel():
             placement[1]=600-self.transform_Y(placement[1])
             floors[floor_id]=sprites.Floor(placement, round(config['Floor Sizes'][floor_id]/32.0))
             self.embody_floor(floors[floor_id])
-            self.set_as_BG(floors[floor_id])
+            #self.set_as_BG(floors[floor_id])
         
         gates= dict()
         for gate1_id in config['Gate Graph']:
@@ -122,10 +122,11 @@ class Nivel():
             for item_id in config['Hierarchy'][floor_id]:
                 if item_id in gates.keys():
                     floors[floor_id].attach_gate(gates[item_id], list(config['Relative Placement'][item_id]))
-                    self.set_as_BG(gates[item_id])
+                    
+                    #self.set_as_BG(gates[item_id])
                 elif item_id in shelters.keys():
                     floors[floor_id].attach_gate(shelters[item_id], list(config['Relative Placement'][item_id]))
-                    self.set_as_BG(shelters[item_id])
+                    #self.set_as_BG(shelters[item_id])
 
         
         num_walkers=config['Options'].get('Walkers', 50)
@@ -158,7 +159,8 @@ class Nivel():
         self.all.add(self.friends)
         self.all.add(self.enemies)
         
-        #self.visible.add([x.items for x in self.floors])
+        self.visible.add(self.floors)
+        self.visible.add([x.items for x in self.floors])
         self.visible.add(self.friends)
         self.visible.add(self.enemies)
         
@@ -225,10 +227,10 @@ class Nivel():
             self.last_time=current_time
             
             #ok... now sincronizes sprites with pymunk. Should use a new group for sprites with body
-            for sprite in self.with_body:
+            for sprite in self.visible:
                 rel_pos=sprite.body.position+self.offset
 
-                sprite.rect.center=[rel_pos[0], rel_pos[1]]
+                sprite.rect.topleft=[rel_pos[0], rel_pos[1]]
             #for sprite in all
             
 class Mouse(pygame.sprite.Sprite):
@@ -238,9 +240,12 @@ class Mouse(pygame.sprite.Sprite):
         self.rect.center=[position[0], position[1]]
         
 def main():
+    DEBUG_RECTANGLES=False
+
     pygame.init()
     screen=pygame.display.set_mode(SCREENRECT.size)
-  
+    font = pygame.font.Font(None, 30)
+
     #keep track of time
     clock = pygame.time.Clock()
     
@@ -275,12 +280,14 @@ def main():
                     personaje.subir_ala()
                 elif event.key == K_RIGHT:
                     personaje.acelerar(0)
+                elif event.key == K_r:
+                    DEBUG_RECTANGLES=not DEBUG_RECTANGLES
             elif event.type == MOUSEBUTTONUP:
                 #print 'Click at '+str(event.pos)
                 caught=pygame.sprite.spritecollide(Mouse(event.pos, 200),nivel_actual.enemies, False)
                 if len(caught)>0:
                     for sprite in caught:
-                        sprite.flee_from=event.pos
+                        #sprite.flee_from=event.pos
                         displacement=vec2d(event.pos)-vec2d(sprite.rect)
                         length=displacement.length
                         if length<10: length=10.0
@@ -304,13 +311,24 @@ def main():
         screen.fill((0,0,0))
         screen.blit(nivel_actual.background, nivel_actual.offset)
         #pygame.display.flip()
-        rectlist=nivel_actual.visible.draw(screen)
-        pygame.display.update()#rectlist)
+        nivel_actual.visible.draw(screen)
+        if DEBUG_RECTANGLES:
+            for actor in nivel_actual.visible:
+                pygame.draw.rect(screen, (0,0,255), actor.rect, 1)
+                #if hasattr(actor,'crect'):
+                    #pygame.draw.rect(screen, (255,0,0), actor.crect, 1)
+            for floor in nivel_actual.floors:
+		text = font.render(str(floor.death_toll), 1, (255, 255, 255))
+		screen.blit(text, floor.rect.midtop)
+
+            
+        pygame.display.update()
         
         clock.tick(40)
         #nivel_actual.visible.clear(screen, nivel_actual.get_background())
         pygame.display.set_caption("fps: " + str(clock.get_fps()))
-
+        #if nivel_actual.visible._spritelist:
+            #pygame.display.set_caption("velocity: "+ str(nivel_actual.visible._spritelist[0].body.velocity[1]))
         
     print clock.get_fps()
     pygame.display.quit()

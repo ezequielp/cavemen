@@ -45,7 +45,7 @@ def state_init(state, parent_machine):
 class Wandering():
         def __init__(self, parent_machine):
                 state_init(self, parent_machine)
-                self.position=self.parent.rect
+                self.position=self.parent.get_position()
                 self.time_step=80
                 self.last_time_on_floor=0
                 self.target=None
@@ -79,7 +79,7 @@ class Wandering():
                 parent.body.reset_forces()
                 dist=target_pos-actor_pos
                 
-                if dist*dist<25:
+                if dist*dist<50:
                         target_state=self.target.get_trigger_state()
                         if  target_state is not None:
                                 self.parent_SM.set_state(target_state) #swich state!
@@ -145,16 +145,16 @@ class Using_Gate():
                 self.parent.body.set_velocity(vec2d(0,0))
                 deltaDeath=self.gate.parent.death_toll-self.gate.destination_death_toll()
                 decision_number=random.uniform(0,1)
-                probability=0.5*tanh(1*deltaDeath)+0.5
+                probability=0.5*tanh(10*deltaDeath)+0.5
                 if decision_number<probability:
-                        self.parent.invisible()
+                        pass#self.parent.invisible()
                 else:
                         self.parent_SM.set_state(Wandering)      
                         
         def execute(self):
-                if self.gate.enter(self.parent):
-                        self.parent.body.set_velocity(vec2d(0,0))
-                        self.parent_SM.set_state(Wandering)      
+                self.gate.enter(self.parent)
+                self.parent.body.set_velocity(vec2d(0,0))
+                self.parent_SM.set_state(Wandering)      
                         
                         
         
