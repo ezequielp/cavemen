@@ -91,7 +91,7 @@ class Nivel():
         
         self.space.add_static_shape(shape)
         floor.body=body
-	floor.shape=shape
+        floor.shape=shape
         body.set_position(vec2d(floor.rect.topleft))
         self.with_body.add(floor)
 
