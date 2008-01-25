@@ -46,7 +46,7 @@ class Wandering():
         def __init__(self, parent_machine):
                 state_init(self, parent_machine)
                 self.position=self.parent.get_position()
-                self.time_step=80
+                self.time_step=50
                 self.last_time_on_floor=0
                 self.target=None
         
