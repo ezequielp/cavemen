@@ -321,7 +321,7 @@ def main():
                     #pygame.draw.rect(screen, (255,0,0), actor.crect, 1)
 	    
             for floor in nivel_actual.floors:
-		text = font.render(str(floor.death_toll), 1, (255, 255, 255))
+                text = font.render(str(floor.death_toll), 1, (255, 255, 255))
 		screen.blit(text, floor.rect.midtop)
 		pygame.draw.line(screen, (0,255,255), floor.shape.get_a()+nivel_actual.offset, floor.shape.get_b()+nivel_actual.offset, 3)
 
