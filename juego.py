@@ -91,6 +91,7 @@ class Nivel():
         
         self.space.add_static_shape(shape)
         floor.body=body
+	floor.shape=shape
         body.set_position(vec2d(floor.rect.topleft))
         self.with_body.add(floor)
 
@@ -135,7 +136,7 @@ class Nivel():
             self.floors.add(floor)
         
         for i in range(num_walkers):
-            caminante=sprites.Caveman([self.enteroAzar(50,700),600-config['Relative Placement']['A'][1]-50], True)
+            caminante=sprites.Caveman([self.enteroAzar(50,700),600-config['Relative Placement']['A'][1]-50])
             self.enemies.add(caminante)
 
     
@@ -315,11 +316,15 @@ def main():
         if DEBUG_RECTANGLES:
             for actor in nivel_actual.visible:
                 pygame.draw.rect(screen, (0,0,255), actor.rect, 1)
+		
                 #if hasattr(actor,'crect'):
                     #pygame.draw.rect(screen, (255,0,0), actor.crect, 1)
+	    
             for floor in nivel_actual.floors:
 		text = font.render(str(floor.death_toll), 1, (255, 255, 255))
 		screen.blit(text, floor.rect.midtop)
+		pygame.draw.line(screen, (0,255,255), floor.shape.get_a()+nivel_actual.offset, floor.shape.get_b()+nivel_actual.offset, 3)
+
 
             
         pygame.display.update()
