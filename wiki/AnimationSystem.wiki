@@ -18,7 +18,7 @@ The main advantage is that we have a 3d model to prerender all needed images, an
 
 Consider the Flying and the Walking animations.
 
-[[AnimationFW.png]]
+[http://code.google.com/p/cavemen/source/browse/wiki/AnimationFW.png]
 
 We find the following elements:
  * A frame element: A single image.
