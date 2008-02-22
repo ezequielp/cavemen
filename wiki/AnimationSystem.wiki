@@ -18,7 +18,7 @@ The main advantage is that we have a 3d model to prerender all needed images, an
 
 Consider the Flying and the Walking animations.
 
-[AnimationFW.png]
+[[AnimationFW.png]]
 
 We find the following elements:
  * A frame element: A single image.
@@ -36,4 +36,3 @@ An animation implies a velocity. That doesn't mean the animation sets a velocity
 The dragon object is an arbiter between the animation and the physics engine. It tries to set the velocity to the one asked by the dragon object. 
 It converts from the dragon's reference frame to the world reference frame.
 It is aware of the collisions and informs the animator object if a movement can't be executed.
-
