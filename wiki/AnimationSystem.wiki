@@ -1,0 +1,39 @@
+#summary Design of the animation of the characters.
+#labels Phase-Design
+
+= Introduction =
+
+We face the problem of animating a 2D character in a complex space, trying to provide a smooth animation.
+
+The main weakness of our engine is that all images must be rendered in advance.
+The main advantage is that we have a 3d model to prerender all needed images, and modern technology to store and display it.
+
+= Requirements =
+
+ * The animation must be induced by a controler (the keyboard, mouse or just a script)
+ * The animation must obey the laws of physics. That means it must respect collisions.
+ * The animation must be smooth. 
+ 
+= The animation =
+
+Consider the Flying and the Walking animations.
+
+[AnimationFW.png]
+
+We find the following elements:
+ * A frame element: A single image.
+ * An escape frame: A frame that allows the transition to another state (in green). It can depend on the destination state.
+ * An animation sequence: The set of frames that is played to achieve the animation.
+
+
+== Coupling to physical engine ==
+
+There is no direct coupling to the physical engine.
+
+== Coupling to the dragon object==
+An animation implies a velocity. That doesn't mean the animation sets a velocity on the engine, but it has a field called velocity.
+
+The dragon object is an arbiter between the animation and the physics engine. It tries to set the velocity to the one asked by the dragon object. 
+It converts from the dragon's reference frame to the world reference frame.
+It is aware of the collisions and informs the animator object if a movement can't be executed.
+
