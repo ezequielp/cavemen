@@ -3,7 +3,7 @@
 
 = Introduction =
 
-_This document is deprecated, will change to MVC and the mediator pattern, see [http://sjbrown.ezide.com/games/writing-games.html]_
+_This document is being updated, the whole engine will change to the MVC paradigm and the mediator pattern, see [http://sjbrown.ezide.com/games/writing-games.html]_
 
 We face the problem of animating a 2D character in a complex space, trying to provide a smooth animation.
 
@@ -14,27 +14,22 @@ The main advantage is that we have a 3d model to prerender all needed images, an
 
  * The animation must be induced by a controler (the keyboard, mouse or just a script)
  * The animation must obey the laws of physics. That means it must respect collisions.
- * The animation must be smooth. 
+ * The animation must be smooth. Transitions between animation cycles must be seamless.
  
-= The animation =
+= Solution =
 
-Consider the Flying and the Walking animations.
+Under the new event-driven system, the animator hears to "movement petitions" that correspond to character movements. He saves the petition and waits until the cycle is ready to change,  once it is ready it sends a message acknowledging that the movement can take place.
 
-[http://cavemen.googlecode.com/svn/wiki/AnimationFW.png]
+It then waits for a acknowledge message from the physics system, saying that the movement is physically posible. Once it receives that it starts the cycle.
 
-We find the following elements:
- * A frame element: A single image.
- * An escape frame: A frame that allows the transition to another state (in green). It can depend on the destination state.
- * An animation sequence: The set of frames that is played to achieve the animation.
+*Example*
+ # Message received "Walk to the right"
+ # Current cycle is "Walk to the left", store "Walk to the right".
+ # It waits for confirmation from the physics engine.
+ # Once the cycle is in the right frame it sends a message acknowledging it is ok to start
+ # Cycle changes and starts.
 
+This is a simplified version, more complex scenarios include:
+ * Animator system plays an intermediate animation before acknowledging that it is ok to do the asked one (for example, turns right before starting walking)
+ * Animator system sends an acknowledge before having a confirmation from the physics engine (for example, spreads wings and moves as flying even if it is not flying).
 
-== Coupling to physical engine ==
-
-There is no direct coupling to the physical engine.
-
-== Coupling to the dragon object==
-An animation implies a velocity. That doesn't mean the animation sets a velocity on the engine, but it has a field called velocity.
-
-The dragon object is an arbiter between the animation and the physics engine. It tries to set the velocity to the one asked by the dragon object. 
-It converts from the dragon's reference frame to the world reference frame.
-It is aware of the collisions and informs the animator object if a movement can't be executed.
