@@ -3,6 +3,8 @@
 
 = Introduction =
 
+_This document is deprecated, will change to MVC and the mediator pattern, see [http://sjbrown.ezide.com/games/writing-games.html]_
+
 We face the problem of animating a 2D character in a complex space, trying to provide a smooth animation.
 
 The main weakness of our engine is that all images must be rendered in advance.
