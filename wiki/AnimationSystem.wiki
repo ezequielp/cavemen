@@ -13,14 +13,14 @@ The main advantage is that we have a 3d model to prerender all needed images we 
 = Requirements =
 
  * The animation must be induced by a controller (the keyboard, mouse or just a script)
- * The animation must be synchronized with the physics engine. That means it must respect collisions.
+ * The animation must be synchronized with the physics engine. That means it must respect collisions. To accomplish this, the animation system will message the physics engine with requests, instead of letting the controller and the physics engine communicate directly.
  * The animation must be smooth. Transitions between animation cycles must be seamless.
  
 = Solution =
 
-Under the new event-driven system, the animator hears to "movement petitions" that correspond to character movements. It saves the petition and waits until the cycle is ready to change,  once it is ready it sends a message acknowledging that the movement can take place.
+Under the new event-driven system, the animator hears to "movement petitions" that correspond to character movements. It saves the petition and waits until the cycle is ready to change,  once it is ready it sends a message acknowledging that the movement can take place and starts directing the physics engine using messages.
 
-It then waits for a acknowledge message from the physics system, saying that the movement is physically possible. Once it receives that, it starts the cycle.
+Character motion is directed by the animator system. This means the animator system takes the "High level" orders and directs the physic engine to generate the movement using "Low level" instructions.
 
 = Events =
 
