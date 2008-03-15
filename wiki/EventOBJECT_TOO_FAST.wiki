@@ -1,0 +1,11 @@
+#summary An event signaling that an object is moving faster than a given threshold velocity.
+
+*Emisor:* The [PhysicMachine Physics engine]
+
+*Receptor:* The map object.
+
+= Example sequence =
+
+ # An object's velocity is faster than 1000 pixels per second. The physics engine posts an event saying so.
+ # The map object listens to that event and examines the object position. The object is outside the map's limits.
+ # The map object kills the object.
