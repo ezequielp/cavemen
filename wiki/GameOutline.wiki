@@ -1,5 +1,5 @@
-#summary One-sentence summary of this page.
-#labels Phase-Design
+#summary Plot detail (spoilers).
+#labels Phase-Design,Featured
 
 = Main Structure =
 The game could be divided in chapters, maybe called "Ages". Each age will introduce different aspects of the game.
