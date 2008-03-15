@@ -1,0 +1,7 @@
+#summary An event signaling that a collision has occurred.
+
+*Emisor:* The [PhysicEngine Physics engine]
+*Receptor:* The animation engine.
+
+= Example sequence =
+
