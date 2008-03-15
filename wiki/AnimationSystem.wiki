@@ -8,19 +8,32 @@ _This document is being updated, the whole engine will change to the MVC paradig
 We face the problem of animating a 2D character in a complex space, trying to provide a smooth animation.
 
 The main weakness of our engine is that all images must be rendered in advance.
-The main advantage is that we have a 3d model to prerender all needed images, and modern technology to store and display it.
+The main advantage is that we have a 3d model to prerender all needed images we need.
 
 = Requirements =
 
- * The animation must be induced by a controler (the keyboard, mouse or just a script)
- * The animation must obey the laws of physics. That means it must respect collisions.
+ * The animation must be induced by a controller (the keyboard, mouse or just a script)
+ * The animation must be synchronized with the physics engine. That means it must respect collisions.
  * The animation must be smooth. Transitions between animation cycles must be seamless.
  
 = Solution =
 
-Under the new event-driven system, the animator hears to "movement petitions" that correspond to character movements. He saves the petition and waits until the cycle is ready to change,  once it is ready it sends a message acknowledging that the movement can take place.
+Under the new event-driven system, the animator hears to "movement petitions" that correspond to character movements. It saves the petition and waits until the cycle is ready to change,  once it is ready it sends a message acknowledging that the movement can take place.
 
-It then waits for a acknowledge message from the physics system, saying that the movement is physically posible. Once it receives that it starts the cycle.
+It then waits for a acknowledge message from the physics system, saying that the movement is physically possible. Once it receives that, it starts the cycle.
+
+= Events =
+
+The system will send messages once any of the following happens:
+
+ * ANIM_CHANGE_OK: A previously requested cycle is ready to play and will start once the physics engine acknowledges (see PhysicMachine )
+ * ANIM_CHANGE_CANCELED: A previously requested cycle was canceled by the animation system. A possible reason is that the requested transition is impossible as a single operation.
+ * ANIM_CHANGE_PROCESSING: A previously requested cycle is being prepared and will start once some internal process is finished (i.e. after the current cycle is finished or after a transition animation finishes playing)
+
+The system will hear for the following messages:
+
+ * Motion requests 
+ * PHYS_CHANGE_OK
 
 *Example*
  # Message received "Walk to the right"
@@ -32,4 +45,3 @@ It then waits for a acknowledge message from the physics system, saying that the
 This is a simplified version, more complex scenarios include:
  * Animator system plays an intermediate animation before acknowledging that it is ok to do the asked one (for example, turns right before starting walking)
  * Animator system sends an acknowledge before having a confirmation from the physics engine (for example, spreads wings and moves as flying even if it is not flying).
-
