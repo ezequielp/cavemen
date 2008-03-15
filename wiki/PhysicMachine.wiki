@@ -16,10 +16,10 @@ To decouple the game from the system and handle the complexity I expect to have 
 The system will send messages every time one of this occurs:
 
  * [EventCOLLISION] - Two objects enter in contact
- * EventCONTACT_LOST - Two objects loose contact
- * EventOBJECT_TOO_FAST - An object is moving faster than a given threshold. (useful for objects that are falling out of control outside the map)
- * EventOBJECT_AT_REST - Probably useful. Will add if it is.
- * EventPHYS_CHANGE_OK - A previous request for a change of state (move to a direction, add force, etc) is allowed and will be done once the object itself acknowledges. (See AnimationSystem) If the anim system sends a PROCESSING message, the physic engine will postpone the change (but not the OK) until it receives an OK from the anim system. 
+ * [EventCONTACT_LOST] - Two objects loose contact
+ * [EventOBJECT_TOO_FAST] - An object is moving faster than a given threshold. (useful for objects that are falling out of control outside the map)
+ * [EventOBJECT_AT_REST] - Probably useful. Will add if it is.
+ * [EventPHYS_CHANGE_OK] - A previous request for a change of state (move to a direction, add force, etc) is allowed and will be done once the object itself acknowledges. (See AnimationSystem) If the anim system sends a PROCESSING message, the physic engine will postpone the change (but not the OK) until it receives an OK from the anim system. 
  
 The system will also listen for the following messages:
 
