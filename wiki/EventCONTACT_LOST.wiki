@@ -1,0 +1,7 @@
+#summary A message signaling that two objects have lost contact.
+
+*Emisor:* The [PhysicMachine Physics engine]
+
+*Receptor:* The animation engine. AI systems. The map object.
+
+= Example sequence =
