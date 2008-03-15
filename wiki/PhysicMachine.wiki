@@ -15,7 +15,7 @@ To decouple the game from the system and handle the complexity I expect to have 
 
 The system will send messages every time one of this occurs:
 
- * EventCOLLISION - Two objects enter in contact
+ * [EventCOLLISION] - Two objects enter in contact
  * EventCONTACT_LOST - Two objects loose contact
  * EventOBJECT_TOO_FAST - An object is moving faster than a given threshold. (useful for objects that are falling out of control outside the map)
  * EventOBJECT_AT_REST - Probably useful. Will add if it is.
