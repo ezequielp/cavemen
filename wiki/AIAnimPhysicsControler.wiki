@@ -1,8 +1,0 @@
-#summary How to control the main character and display his state through animations.
-#labels Phase-Requirements
-
-= Introduction =
-
-The greatest problem I encountered so far is the problem of controlling the main character, showing animations corresponding to its current state.
-
-The main problem is to keep the animation consistent. For that I recommend you to examine the AnimationSystem first.
