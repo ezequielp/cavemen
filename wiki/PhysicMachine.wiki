@@ -6,3 +6,22 @@
 Physics has been implemented using [http://www.pyweek.org/d/932/ pymunk] python bindings of the [http://wiki.slembcke.net/main/published/Chipmunk  chipmunk physics engine].
 
 This is a very flexible engine that will allow us to implement things like explosions. Hopefully buoyancy will be implemented by the time it's needed.
+
+= Event driven wrapper =
+
+Pymunk itself is a very thin wrapper of Chipmunk. Collisions can be handled registering a function that gets called every time it occurs a collision between two objects of two predefined groups. 
+
+To decouple the game from the system and handle the complexity I expect to have soon, we will use an event driven wrapper to pymunk (ideally, it will be contributed to pymunk if the maintainer thinks it is good enough).
+
+The system will send messages every time one of this occurs:
+
+ * COLLISION: Two objects enter in contact
+ * CONTACT_LOST: Two objects loose contact
+ * OBJECT_TOO_FAST: An object is moving faster than a given threshold. (useful for objects that are falling out of control outside the map)
+ * OBJECT_AT_REST: Probably useful. Will add if it is.
+ * PHYS_CHANGE_OK: A previous request for a change of state (move to a direction, add force, etc) is allowed and will be done once the object itself acknowledges (See AnimationSystem) 
+ 
+The system will also listen for the following messages:
+
+ * Motion requests: A request asking a certain movement in a character. It can be generated, for example, by an IA, a script or a controller driver (i.e, the player) 
+ * ANIM_CHANGE_OK: A message sent by the anim system acknowledging that a previous motion request is allowed. 
